@@ -1,0 +1,12 @@
+.website-footer :is(p, a, h2, button) {
+  overflow-wrap: anywhere;
+}
+.website-footer :is(nav, li, .footer-brand) {
+  min-width: 0;
+}
+.website-footer a {
+  max-width: 100%;
+}
+.website-footer a svg {
+  flex-shrink: 0;
+}

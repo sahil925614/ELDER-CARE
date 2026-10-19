@@ -1,0 +1,100 @@
+/* Scoped to the customer workspace; public website colors are unchanged. */
+.customer-dark {
+  color-scheme: dark;
+  background: #0d171e;
+  color: #e2e8f0;
+  --theme-soft: #172c32;
+  --theme-light: #29434a;
+  --theme-muted: #365d63;
+}
+.customer-dark
+  :is(
+    .bg-white,
+    .bg-white\/95,
+    .portal-card,
+    .portal-dialog,
+    .customer-navigation-drawer
+  ) {
+  background-color: #15232c;
+}
+.customer-dark :is(.bg-slate-50, .bg-slate-100) {
+  background-color: #1b2e38;
+}
+.customer-dark :is(.text-brand-900, .text-slate-800) {
+  color: #e0f2ef;
+}
+.customer-dark :is(.text-primary, .text-brand-700) {
+  color: #79dcd0;
+}
+.customer-dark :is(.text-slate-500, .text-slate-600) {
+  color: #b2c2ce;
+}
+.customer-dark :is(.text-slate-400, .text-slate-300) {
+  color: #9baebd;
+}
+.customer-dark
+  :is(
+    .border-slate-100,
+    .border-slate-200,
+    .border-slate-200\/70,
+    .border-slate-300
+  ) {
+  border-color: #29434a;
+}
+.customer-dark :is(.portal-input, .portal-icon-button, .portal-tab) {
+  background-color: #15232c;
+  color: #d5ebe7;
+  border-color: #36545b;
+}
+.customer-dark :is(input, textarea, select) {
+  color-scheme: dark;
+}
+.customer-dark input::placeholder,
+.customer-dark textarea::placeholder {
+  color: #93a8b6;
+}
+.customer-dark .portal-table th {
+  background: #1b2e38;
+  color: #b2c2ce;
+  border-color: #29434a;
+}
+.customer-dark .portal-table td {
+  color: #b2c2ce;
+  border-color: #29434a;
+}
+.customer-dark .portal-table tbody tr:hover {
+  background: #1b343b;
+}
+.customer-dark .portal-tab-active,
+.customer-dark .button-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+.customer-dark .bg-amber-50 {
+  background-color: #3a301c;
+}
+.customer-dark .text-amber-800 {
+  color: #f7d18a;
+}
+.customer-dark .bg-rose-50 {
+  background-color: #3b232e;
+}
+.customer-dark :is(.text-rose-700, .text-red-700) {
+  color: #fda4af;
+}
+.customer-dark :is(.border-rose-100, .border-amber-200\/70) {
+  border-color: #665046;
+}
+.customer-dark :is(.bg-primary, .bg-brand-700, .bg-brand-900) .text-brand-100 {
+  color: #d2f3ec;
+}
+.customer-dark .bg-primary.text-white {
+  color: white;
+}
+.customer-dark
+  :is(
+    .portal-dialog,
+    .customer-navigation-drawer
+  )::backdrop {
+  background: #02080bb3;
+}

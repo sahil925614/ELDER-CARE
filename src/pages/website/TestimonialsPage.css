@@ -1,0 +1,38 @@
+.testimonials-page {
+  overflow-wrap: anywhere;
+}
+
+.testimonials-page .grid > *,
+.testimonials-page .flex > * {
+  min-width: 0;
+}
+
+.testimonials-page a,
+.testimonials-page button {
+  max-width: 100%;
+}
+
+.testimonials-page a svg,
+.testimonials-page button svg {
+  flex-shrink: 0;
+}
+
+.testimonial-slider article {
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .testimonial-share > div {
+    flex: 1;
+  }
+
+  .testimonial-share > a {
+    max-width: 40%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-slider {
+    scroll-behavior: auto;
+  }
+}

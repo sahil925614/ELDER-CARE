@@ -1,0 +1,6 @@
+.information-layout { overflow-wrap: anywhere; }
+.information-layout .inner-page-banner__content { overflow-wrap: anywhere; }
+.information-layout .inner-banner-breadcrumb { max-width: 100%; }
+.information-layout .inner-banner-breadcrumb [aria-current] { min-width: 0; overflow-wrap: anywhere; }
+.faq-content input[type="search"]::-webkit-search-cancel-button { display: none; }
+.information-layout .button-outline { white-space: normal; max-width: 100%; }

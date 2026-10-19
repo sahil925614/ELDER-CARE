@@ -1,0 +1,8 @@
+.contact-layout { overflow-wrap: anywhere; }
+.contact-layout .inner-page-banner__content { overflow-wrap: anywhere; }
+.contact-layout .inner-banner-breadcrumb { max-width: 100%; }
+.contact-layout .inner-banner-breadcrumb [aria-current] { min-width: 0; overflow-wrap: anywhere; }
+.contact-layout input, .contact-layout textarea, .contact-layout fieldset { min-width: 0; }
+.contact-layout input[aria-invalid="true"], .contact-layout textarea[aria-invalid="true"] { border-color: #dc2626; }
+.contact-layout select[aria-invalid="true"] { border-color: #dc2626; }
+.contact-layout .button-primary { white-space: normal; }

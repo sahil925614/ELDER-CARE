@@ -1,0 +1,16 @@
+.addons-page :is(h1, h2, h3, p, a, button, span) {
+  overflow-wrap: anywhere;
+}
+.addons-page .care-card,
+.addons-page .care-card > *,
+.addons-page .grid > * {
+  min-width: 0;
+}
+.addons-page a,
+.addons-page button {
+  max-width: 100%;
+}
+.addons-page a svg,
+.addons-page button svg {
+  flex-shrink: 0;
+}

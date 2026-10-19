@@ -1,0 +1,25 @@
+.how-it-works-page {
+  overflow-wrap: anywhere;
+}
+
+.how-it-works-page .grid > *,
+.how-it-works-page .flex > * {
+  min-width: 0;
+}
+
+.how-it-works-page a,
+.how-it-works-page button,
+.how-it-works-page .journey-photo-label {
+  max-width: 100%;
+}
+
+.how-it-works-page a svg,
+.how-it-works-page button svg {
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .how-it-works-page .journey-reassurance {
+    grid-template-columns: minmax(0, 1fr) fit-content(40%);
+  }
+}

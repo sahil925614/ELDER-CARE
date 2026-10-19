@@ -1,0 +1,21 @@
+.plans-page :is(h1, h2, h3, p, a, button, li, span, summary) {
+  overflow-wrap: anywhere;
+}
+.plans-page :is(h1, h2, h3) {
+  letter-spacing: 0;
+}
+.plans-page .grid > *,
+.plans-page article,
+.plans-page article > *,
+.plans-page .plans-story-photo,
+.plans-page .plans-story-caption {
+  min-width: 0;
+}
+.plans-page a,
+.plans-page button {
+  max-width: 100%;
+}
+.plans-page a svg,
+.plans-page button svg {
+  flex-shrink: 0;
+}

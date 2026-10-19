@@ -1,0 +1,4 @@
+Generated with the built-in image generation tool.
+
+Prompt:
+Create a photorealistic elder care website hero background photo, landscape 16:9. Bright airy white modern home with a softly blurred window on the left. A happy elderly white-haired woman in white blouse seated in foreground in the right half, smiling slightly upwards. A friendly brunette female nurse wearing light blue scrubs and stethoscope stands beside her at far right, leaning gently toward her, warm eye contact. Medium shot waist-up. Subjects occupy right 55 percent of image; left 45 percent is uncluttered pale aqua room negative space for website heading. Natural daylight, authentic skin texture, polished stock photography. No lettering, logos, typography, graphics, or watermark. Similar composition to the photo in user reference, but generate only the photograph, not the website design.

@@ -1,0 +1,1 @@
+Website content photos now use imports from src/assets. Add your photos there and edit src/pages/website/components/contentImages.ts to set each section image and alt description. This public folder is not used by the current configuration.

@@ -1,0 +1,22 @@
+.about-page {
+  overflow-wrap: anywhere;
+}
+
+.about-page .grid > *,
+.about-page .flex > * {
+  min-width: 0;
+}
+
+.about-page a svg {
+  flex-shrink: 0;
+}
+
+.about-page a {
+  max-width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .about-page .about-care-options {
+    grid-template-columns: minmax(0, 1fr) fit-content(45%);
+  }
+}

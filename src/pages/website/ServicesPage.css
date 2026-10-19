@@ -1,0 +1,23 @@
+.services-page h1,
+.services-page h2,
+.services-page h3,
+.services-page p,
+.services-page li,
+.services-page a,
+.services-page button,
+.services-page summary {
+  overflow-wrap: anywhere;
+}
+.services-page .care-card,
+.services-page .care-card > *,
+.services-page .grid > * {
+  min-width: 0;
+}
+.services-page a,
+.services-page button {
+  max-width: 100%;
+}
+.services-page a svg,
+.services-page button svg {
+  flex-shrink: 0;
+}

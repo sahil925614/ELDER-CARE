@@ -1,0 +1,24 @@
+.doctors-page :is(h1, h2, h3, p, a, button, span, summary) {
+  overflow-wrap: anywhere;
+}
+.doctors-page :is(h1, h2, h3) {
+  letter-spacing: 0;
+}
+.doctors-page .grid > *,
+.doctors-page article,
+.doctors-page article > * {
+  min-width: 0;
+}
+.doctors-page a,
+.doctors-page button {
+  max-width: 100%;
+}
+.doctors-page a svg,
+.doctors-page button svg {
+  flex-shrink: 0;
+}
+@media (min-width: 640px) {
+  .doctors-page #professional-directory > div:last-child > a {
+    flex-shrink: 1;
+  }
+}

@@ -1,0 +1,1128 @@
+@import "tailwindcss";
+
+:root {
+  --primary-color: #147f79; 
+ --secondary-color: #63d1c6;
+
+
+  --theme-soft: color-mix(in srgb, var(--secondary-color) 10%, white);
+  --theme-light: color-mix(in srgb, var(--secondary-color) 25%, white);
+  --theme-muted: color-mix(in srgb, var(--secondary-color) 60%, white);
+  --theme-dark: color-mix(in srgb, var(--primary-color) 60%, black);
+  --theme-hero: color-mix(
+    in srgb,
+    var(--secondary-color) 80%,
+    var(--primary-color)
+  );
+  --theme-hero-mobile: color-mix(
+    in srgb,
+    var(--primary-color) 80%,
+    var(--secondary-color)
+  );
+}
+
+@theme inline {
+  --color-primary: var(--primary-color);
+  --color-secondary: var(--secondary-color);
+  --color-brand-50: var(--theme-soft);
+  --color-brand-100: var(--theme-light);
+  --color-brand-200: var(--theme-muted);
+  --color-brand-300: var(--secondary-color);
+  --color-brand-700: var(--primary-color);
+  --color-brand-900: var(--theme-dark);
+  --font-sans: "Segoe UI", Arial, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply m-0 min-w-80 bg-white font-sans text-slate-900 antialiased;
+  }
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-700;
+  }
+}
+
+@layer components {
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-white focus:p-4;
+  }
+
+  @layer components {
+    .care-ticker {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+
+      /* Allows horizontal mouse/touch interaction */
+      cursor: grab;
+
+      /* Soft fade on both edges */
+      -webkit-mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 4%,
+        black 96%,
+        transparent
+      );
+
+      mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 4%,
+        black 96%,
+        transparent
+      );
+    }
+
+    .care-ticker:active {
+      cursor: grabbing;
+    }
+
+    .care-ticker-track {
+      display: flex;
+      align-items: center;
+      width: max-content;
+
+      animation: careTicker 32s linear infinite;
+
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* Pause when user puts cursor on slider */
+    .care-ticker:hover .care-ticker-track {
+      animation-play-state: paused;
+    }
+
+    .care-ticker-item {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 16px;
+
+      /* Controls each item's width */
+      width: 360px;
+
+      padding-right: 48px;
+      margin-right: 48px;
+
+      border-right: 1px solid var(--theme-light);
+    }
+
+    @keyframes careTicker {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    @media (max-width: 767px) {
+      .care-ticker-item {
+        width: 300px;
+
+        padding-right: 28px;
+        margin-right: 28px;
+      }
+
+      .care-ticker-track {
+        animation-duration: 27s;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .care-ticker-track {
+        animation: none;
+      }
+
+      .care-ticker {
+        overflow-x: auto;
+      }
+    }
+  }
+  .site-header {
+    position: sticky;
+    top: 16px;
+    z-index: 40;
+    width: 88%;
+    max-width: 1280px;
+    height: 0;
+    flex-shrink: 0;
+    margin: 16px auto -16px;
+  }
+  .site-header--overlay {
+    margin-top: clamp(36px, 3.5vw, 52px);
+    margin-bottom: calc(-1 * clamp(36px, 3.5vw, 52px));
+  }
+  .nav-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 54px;
+    padding: 5px 20px 5px 0px;
+    border: 1px solid var(--theme-light);
+    border-radius: 999px;
+    background: white;
+    box-shadow: 0 8px 28px
+      color-mix(in srgb, var(--primary-color) 10%, transparent);
+  }
+  .hero-stage {
+    padding: 20px 20px 0;
+    background: white;
+  }
+  .care-hero {
+    position: relative;
+    isolation: isolate;
+    min-height: 650px;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid
+      color-mix(in srgb, var(--secondary-color) 38%, transparent);
+    border-radius: 13px;
+    background: var(--secondary-color);
+  }
+  .care-hero-photo {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .care-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--theme-hero) 93%, transparent) 0%,
+      color-mix(in srgb, var(--theme-hero) 81%, transparent) 30%,
+      color-mix(in srgb, var(--secondary-color) 33%, transparent) 52%,
+      transparent 68%
+    );
+  }
+  .care-hero-content {
+    width: 82%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 153px 0 70px;
+  }
+  .care-hero-heading {
+    max-width: 620px;
+    margin: 0;
+    color: white;
+    font-size: clamp(40px, 4.35vw, 64px);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    font-weight: 750;
+  }
+  .care-hero-copy {
+    max-width: 390px;
+    margin-top: 23px;
+    color: white;
+    font-size: 16px;
+    line-height: 1.55;
+    text-shadow: 0 1px 8px
+      color-mix(in srgb, var(--primary-color) 19%, transparent);
+  }
+  .hero-benefits {
+    display: flex;
+    gap: 24px;
+    margin-top: 90px;
+  }
+  .hero-benefit {
+    position: relative;
+    width: 205px;
+    border-radius: 13px;
+    background: #fffffff5;
+    padding: 20px;
+    color: var(--primary-color);
+  }
+  .hero-benefit-icon {
+    position: absolute;
+    top: -18px;
+    right: -6px;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 6px 20px
+      color-mix(in srgb, var(--primary-color) 7%, transparent);
+    color: color-mix(in srgb, var(--secondary-color) 70%, var(--primary-color));
+  }
+  @media (min-width: 1500px) {
+    .care-hero {
+      min-height: 760px;
+    }
+    .care-hero-content {
+      padding-top: 175px;
+    }
+    .hero-benefits {
+      margin-top: 110px;
+    }
+  }
+  @media (max-width: 767px) {
+    .site-header {
+      width: calc(100% - 56px);
+    }
+    .site-header--overlay {
+      margin-top: 28px;
+      margin-bottom: -28px;
+    }
+    .hero-stage {
+      padding: 16px 12px 0;
+    }
+    .care-hero {
+      /* min-height: 790px; */
+    }
+    .care-hero-photo {
+      object-position: 90% top;
+    }
+    .care-hero::after {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--theme-hero-mobile) 92%, transparent) 0%,
+        color-mix(in srgb, var(--theme-hero-mobile) 90%, transparent) 48%,
+        color-mix(in srgb, var(--theme-hero-mobile) 27%, transparent) 78%,
+        color-mix(in srgb, var(--theme-hero-mobile) 45%, transparent) 100%
+      );
+    }
+    .care-hero-content {
+      width: auto;
+      padding: 120px 24px 28px;
+    }
+    .care-hero-heading {
+      font-size: clamp(34px, 7.3vw, 48px);
+      max-width: 480px;
+    }
+    .care-hero-copy {
+      max-width: 340px;
+    }
+    .hero-benefits {
+      gap: 14px;
+      /* margin-top: 245px; */
+    }
+    .hero-benefit {
+      width: 50%;
+      padding: 20px 13px 15px;
+    }
+    .hero-benefit-icon {
+      width: 38px;
+      height: 38px;
+      right: 6px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .page-container {
+    @apply mx-auto w-full max-w-7xl px-6 lg:px-8;
+  }
+  .section-space {
+    @apply py-16 sm:py-24;
+  }
+  .section-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-brand-700;
+  }
+  .section-title {
+    @apply mt-4 text-3xl font-semibold leading-tight tracking-tight text-brand-900 sm:text-4xl;
+  }
+  .icon-bubble {
+    @apply inline-flex size-14 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-700;
+  }
+  .care-card {
+    @apply rounded-3xl border border-brand-100 bg-white p-7 transition-colors hover:bg-brand-50/60;
+  }
+  .text-link {
+    @apply inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:underline;
+  }
+  .button-primary {
+    @apply inline-flex w-fit items-center justify-center gap-3 rounded-full bg-brand-700 px-7 py-3.5 text-sm font-semibold text-white hover:bg-brand-900;
+  }
+  .button-outline {
+    @apply inline-flex w-fit items-center justify-center gap-3 rounded-full border border-brand-700/30 px-6 py-3 text-sm font-semibold text-brand-700 hover:bg-brand-50;
+  }
+}
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@layer components {
+  .page-entrance {
+    animation: page-enter 600ms ease-out both;
+  }
+  .content-page article {
+    transition:
+      transform 220ms ease,
+      box-shadow 220ms ease,
+      border-color 220ms ease;
+  }
+  .content-page .button-primary,
+  .content-page .button-outline {
+    transition:
+      transform 200ms ease,
+      background-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+  .content-page .text-link svg {
+    transition: transform 200ms ease;
+  }
+  @media (hover: hover) {
+    .content-page article:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 36px
+        color-mix(in srgb, var(--primary-color) 9%, transparent);
+    }
+    .content-page .button-primary:hover,
+    .content-page .button-outline:hover {
+      transform: translateY(-2px);
+    }
+    .content-page .text-link:hover svg {
+      transform: translate(2px, -2px);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-entrance {
+    animation: none;
+  }
+  .content-page article,
+  .content-page .button-primary,
+  .content-page .button-outline,
+  .content-page .text-link svg {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+@keyframes portal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@layer components {
+  .portal-card {
+    @apply min-w-0 rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm shadow-slate-200/20;
+  }
+  .portal-lift {
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+  .portal-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px
+      color-mix(in srgb, var(--primary-color) 8%, transparent);
+  }
+  .portal-icon-button {
+    @apply inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-brand-100 bg-white text-primary transition-colors hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-30;
+  }
+  .portal-tab {
+    @apply rounded-full border border-brand-100 bg-white px-5 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-brand-50;
+  }
+  .portal-tab-active {
+    @apply border-primary bg-primary text-white hover:bg-brand-900;
+  }
+  .portal-input {
+    @apply mt-2 w-full rounded-xl border border-brand-100 bg-white px-4 py-3 text-sm font-normal text-slate-800;
+  }
+  .portal-label {
+    @apply block text-sm font-semibold text-brand-900;
+  }
+  .portal-table {
+    @apply w-full text-left text-sm;
+  }
+  .portal-table th {
+    @apply whitespace-nowrap border-b border-slate-100 bg-slate-50/70 px-4 py-4 text-xs font-semibold text-slate-500;
+  }
+  .portal-table td {
+    @apply whitespace-nowrap border-b border-slate-100 px-4 py-5 text-slate-500;
+  }
+  .portal-table tbody tr:hover {
+    @apply bg-brand-50/40;
+  }
+ .portal-dialog {
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  overflow: visible;
+  box-shadow:
+    0 24px 70px rgb(15 23 42 / 0.18),
+    0 4px 18px rgb(15 23 42 / 0.08);
+}
+
+.portal-dialog::backdrop {
+  background: color-mix(
+    in srgb,
+    var(--theme-dark) 42%,
+    transparent
+  );
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.portal-page-enter {
+  animation: portal-enter 250ms ease-out;
+}
+
+@media (max-width: 640px) {
+  .portal-dialog {
+    width: calc(100% - 24px);
+    max-height: calc(100dvh - 24px);
+    border-radius: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-page-enter {
+    animation: none;
+  }
+
+  .portal-lift {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+@keyframes banner-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes banner-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes banner-slide {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes banner-zoom {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes banner-reveal {
+  from {
+    opacity: 0;
+    -webkit-clip-path: inset(0 0 18% 0);
+    clip-path: inset(0 0 18% 0);
+  }
+  to {
+    opacity: 1;
+    -webkit-clip-path: inset(0);
+    clip-path: inset(0);
+  }
+}
+
+@keyframes banner-soft-focus {
+  from {
+    opacity: 0;
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.banner-fade {
+  animation: banner-fade 700ms ease-out both;
+}
+.banner-rise {
+  animation: banner-rise 650ms ease-out both;
+}
+.banner-slide {
+  animation: banner-slide 650ms ease-out both;
+}
+.banner-zoom {
+  animation: banner-zoom 800ms ease-out both;
+}
+.banner-reveal {
+  animation: banner-reveal 800ms ease-out both;
+}
+.banner-soft-focus {
+  animation: banner-soft-focus 700ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner-fade,
+  .banner-rise,
+  .banner-slide,
+  .banner-zoom,
+  .banner-reveal,
+  .banner-soft-focus {
+    animation: none;
+  }
+}
+
+@keyframes content-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes accent-grow {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.inner-page-banner__content > nav {
+  animation: content-arrive 600ms ease-out 100ms both;
+}
+
+.inner-page-banner__content > h1 {
+  animation: content-arrive 750ms cubic-bezier(0.22, 1, 0.36, 1) 220ms both;
+}
+
+.inner-page-banner__content > span {
+  animation: accent-grow 550ms ease-out 380ms both;
+  transform-origin: center;
+}
+
+.inner-page-banner__content > p {
+  animation: content-arrive 650ms ease-out 450ms both;
+}
+
+.inner-page-banner__actions {
+  animation: content-arrive 650ms ease-out 600ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inner-page-banner__content > nav,
+  .inner-page-banner__content > h1,
+  .inner-page-banner__content > span,
+  .inner-page-banner__content > p,
+  .inner-page-banner__actions {
+    animation: none;
+  }
+}
+
+/* Mobile customer navigation only; other portal dialogs stay centred. */
+.customer-navigation-drawer {
+  position: fixed;
+  inset: 0 auto 0 0;
+  margin: 0;
+  width: min(320px, calc(100vw - 40px));
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0 20px 20px 0;
+  background: white;
+  overflow: hidden;
+  box-shadow: 12px 0 40px #0002;
+}
+.customer-navigation-drawer::backdrop {
+  background: color-mix(in srgb, var(--theme-dark) 42%, transparent);
+}
+@keyframes customer-navigation-enter {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .customer-navigation-drawer[open] {
+    animation: customer-navigation-enter 220ms ease-out;
+  }
+}
+
+/* =========================================================
+   ANIMATED CUSTOMER PORTAL ICONS
+========================================================= */
+
+.portal-svg {
+  display: block;
+  width: 19px;
+  height: 19px;
+  overflow: visible;
+}
+
+/* Keep SVG parts animatable */
+
+.portal-svg *,
+.portal-svg g {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* =========================================================
+   OVERVIEW
+========================================================= */
+
+.group:hover .portal-dashboard-block-1 {
+  animation: portal-block-pop 0.55s ease 0s;
+}
+
+.group:hover .portal-dashboard-block-2 {
+  animation: portal-block-pop 0.55s ease 0.08s;
+}
+
+.group:hover .portal-dashboard-block-3 {
+  animation: portal-block-pop 0.55s ease 0.16s;
+}
+
+.group:hover .portal-dashboard-block-4 {
+  animation: portal-block-pop 0.55s ease 0.24s;
+}
+
+@keyframes portal-block-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.55);
+  }
+}
+
+/* =========================================================
+   HEART
+========================================================= */
+
+.group:hover .portal-heart-shape {
+  animation: portal-heart-beat 0.7s ease;
+}
+
+.group:hover .portal-heart-pulse {
+  animation: portal-heart-line 0.7s ease;
+}
+
+@keyframes portal-heart-beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  35% {
+    transform: scale(1.14);
+  }
+
+  55% {
+    transform: scale(0.96);
+  }
+
+  75% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes portal-heart-line {
+  0% {
+    opacity: 0;
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    stroke-dasharray: 20;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* =========================================================
+   FAMILY
+========================================================= */
+
+.group:hover .portal-user-main {
+  animation: portal-user-rise 0.55s ease;
+}
+
+.group:hover .portal-user-secondary {
+  animation: portal-user-secondary 0.6s ease;
+}
+
+@keyframes portal-user-rise {
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+@keyframes portal-user-secondary {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(1.5px);
+  }
+}
+
+/* =========================================================
+   SUBSCRIPTION LAYERS
+========================================================= */
+
+.group:hover .portal-layer-top {
+  animation: portal-layer-top 0.65s ease;
+}
+
+.group:hover .portal-layer-middle {
+  animation: portal-layer-middle 0.65s ease;
+}
+
+.group:hover .portal-layer-bottom {
+  animation: portal-layer-bottom 0.65s ease;
+}
+
+@keyframes portal-layer-top {
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes portal-layer-middle {
+  50% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes portal-layer-bottom {
+  50% {
+    transform: translateY(2px);
+  }
+}
+
+/* =========================================================
+   PACKAGE / ADD-ONS
+========================================================= */
+
+.group:hover .portal-package-box {
+  animation: portal-package 0.6s ease;
+}
+
+.group:hover .portal-package-plus {
+  animation: portal-plus 0.55s ease;
+}
+
+@keyframes portal-package {
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes portal-plus {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.5) rotate(-90deg);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.25) rotate(10deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* =========================================================
+   CALENDAR
+========================================================= */
+
+.group:hover .portal-calendar-header {
+  animation: portal-calendar-header 0.65s ease;
+}
+
+.group:hover .portal-calendar-dates {
+  animation: portal-calendar-dates 0.7s ease;
+}
+
+@keyframes portal-calendar-header {
+  50% {
+    transform: translateY(1px);
+  }
+}
+
+@keyframes portal-calendar-dates {
+  0% {
+    opacity: 0.2;
+    transform: translateY(2px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   PAYMENT CARD
+========================================================= */
+
+.group:hover .portal-card-stripe {
+  animation: portal-card-stripe 0.65s ease;
+}
+
+.group:hover .portal-card-detail {
+  animation: portal-card-detail 0.65s ease;
+}
+
+@keyframes portal-card-stripe {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes portal-card-detail {
+  0% {
+    opacity: 0.3;
+    transform: scaleX(0.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* =========================================================
+   BELL
+========================================================= */
+
+.group:hover .portal-bell-body {
+  animation: portal-bell-ring 0.75s ease;
+}
+
+.group:hover .portal-bell-clapper {
+  animation: portal-bell-clapper 0.75s ease;
+}
+
+@keyframes portal-bell-ring {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  20% {
+    transform: rotate(10deg);
+  }
+
+  40% {
+    transform: rotate(-9deg);
+  }
+
+  60% {
+    transform: rotate(6deg);
+  }
+
+  80% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes portal-bell-clapper {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  30% {
+    transform: translateX(2px);
+  }
+
+  60% {
+    transform: translateX(-2px);
+  }
+}
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+.group:hover .portal-profile-head {
+  animation: portal-profile-head 0.55s ease;
+}
+
+.group:hover .portal-profile-body {
+  animation: portal-profile-body 0.6s ease;
+}
+
+@keyframes portal-profile-head {
+  50% {
+    transform: translateY(-1.5px) scale(1.05);
+  }
+}
+
+@keyframes portal-profile-body {
+  0% {
+    opacity: 0.5;
+    transform: scaleX(0.8);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-svg *,
+  .portal-svg g {
+    animation: none !important;
+  }
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.portal-logout-door {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.portal-logout-arrow {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Arrow exits towards the right */
+
+.portal-logout-arrow {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.group:hover .portal-logout-arrow {
+  animation: portal-logout-arrow 0.65s ease;
+}
+
+.group:hover .portal-logout-door {
+  animation: portal-logout-door 0.65s ease;
+}
+
+@keyframes portal-logout-arrow {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  40% {
+    transform: translateX(3px);
+    opacity: 0;
+  }
+
+  41% {
+    transform: translateX(-3px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes portal-logout-door {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(-1px);
+  }
+}
+}
+
+
+/* Dashboard filters already provide their own accessible clear button. */
+.portal-page-enter input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}

@@ -1,0 +1,45 @@
+.home-dynamic-content {
+  display: contents;
+}
+.home-dynamic-content :is(h2, h3, p, a, summary) {
+  overflow-wrap: anywhere;
+}
+.home-dynamic-content a {
+  max-width: 100%;
+}
+.home-dynamic-content a > svg {
+  flex-shrink: 0;
+}
+/* Only the homepage plan cards change on mobile. */
+@media (max-width: 767px) {
+  .home-plans-panel {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .home-plans-track {
+    position: relative;
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: 12px 10%;
+  }
+  .home-plans-track::-webkit-scrollbar { display: none; }
+  .home-plans-track > article {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: center;
+    scale: 0.91;
+    transition: scale 280ms ease;
+    border: 1px solid var(--theme-light);
+    border-radius: 24px;
+    background: white;
+    padding: 24px 20px;
+  }
+  .home-plans-track > article[data-centered="true"] { scale: 1; }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .home-plans-track > article { transition: none; }
+}
