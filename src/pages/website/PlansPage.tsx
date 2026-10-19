@@ -140,7 +140,7 @@ export function PlansPage() {
           </div>
         )}
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-3 lg:items-stretch">
+        <div className="plans-catalogue mt-10 grid items-start gap-6 lg:grid-cols-3">
           {plans.map((plan, index) => {
             const isPopular = plan.is_featured || index === 1;
             const selectedPrice =
@@ -152,7 +152,7 @@ export function PlansPage() {
               <article
                 key={plan.id}
                 className={
-                  "relative flex flex-col overflow-hidden rounded-[28px] border transition-all duration-300 " +
+                  "plans-catalogue-card relative flex flex-col overflow-hidden rounded-[28px] border transition-all duration-300 " +
                   (isPopular
                     ? "border-primary bg-primary text-white shadow-[0_18px_45px_rgba(20,127,121,0.14)]"
                     : "border-brand-100 bg-white text-brand-900 hover:border-brand-200 hover:shadow-[0_16px_40px_rgba(20,127,121,0.06)]")
@@ -161,7 +161,7 @@ export function PlansPage() {
                 {/* POPULAR LABEL */}
 
                 {isPopular && (
-                  <div className="border-b border-white/15 bg-white/[0.08] px-7 py-2.5 text-center">
+                  <div className="plans-catalogue-badge border-b border-white/15 bg-white/[0.08] px-7 py-2.5 text-center">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white">
                       {sections.catalogue.popular_label}
                     </p>
@@ -170,7 +170,7 @@ export function PlansPage() {
 
                 {/* PACKAGE HEADER */}
 
-                <div className="px-7 pb-5 pt-6">
+                <div className="plans-catalogue-header px-7 pb-5 pt-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p
@@ -224,10 +224,10 @@ export function PlansPage() {
 
                 {/* PACKAGE DETAILS */}
 
-                <div className="flex flex-1 flex-col px-7 pb-6 pt-5">
+                <div className="plans-catalogue-body flex flex-1 flex-col px-7 pb-6 pt-5">
                   <div
                     className={
-                      "rounded-2xl border px-4 py-3.5 " +
+                      "plans-catalogue-price rounded-2xl border px-4 py-3.5 " +
                       (isPopular
                         ? "border-white/20 bg-white/10"
                         : "border-brand-100 bg-brand-50/70")
@@ -266,7 +266,7 @@ export function PlansPage() {
                     {sections.catalogue.services_label}
                   </p>
 
-                  <ul className="mt-3 space-y-2.5">
+                  <ul className="plans-catalogue-services mt-3 space-y-2.5">
                     {plan.services.map((service) => (
                       <li
                         key={service.id || service.name}
@@ -314,11 +314,10 @@ export function PlansPage() {
                     ))}
                   </ul>
 
-                  {(plan.addon_services ?? []).length > 0 && <div className="mt-4 border-t border-current/20 pt-4"><p className="text-xs font-semibold">{sections.catalogue.addons_label}</p><ul className="mt-2 space-y-1 text-xs">{plan.addon_services.map((service) => <li key={service.id}>{service.name} - {service.pricing_type === 'custom' ? sections.catalogue.quote_label : service.formatted_price}</li>)}</ul></div>}
                   {features.length > 0 && (
                     <div
                       className={
-                        "mt-4 border-t pt-4 " +
+                        "plans-catalogue-benefits mt-4 border-t pt-4 " +
                         (isPopular ? "border-white/20" : "border-brand-100")
                       }
                     >
@@ -352,7 +351,7 @@ export function PlansPage() {
 
                   <div
                     className={
-                      "mt-4 border-y py-3 " +
+                      "plans-catalogue-duration mt-4 border-y py-3 " +
                       (isPopular ? "border-white/20" : "border-brand-100")
                     }
                   >

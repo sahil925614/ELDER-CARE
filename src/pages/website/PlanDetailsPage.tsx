@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams, useParams } from "react-router-dom";
-import { fetchPlanCatalog, type PlanCatalogItem } from '@/features/plans/planCatalog';
-import { getCurrencyPreference } from '@/features/plans/currencyPreference';
+import {
+  fetchPlanCatalog,
+  type PlanCatalogItem,
+} from "@/features/plans/planCatalog";
+import { getCurrencyPreference } from "@/features/plans/currencyPreference";
 
 import {
   ArrowLeft,
@@ -28,34 +31,75 @@ export function PlanDetailsPage({
   const { planSlug } = useParams();
   const [catalogPlan, setCatalogPlan] = useState<PlanCatalogItem | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [currency, setCurrency] = useState(getCurrencyPreference);
   const [params] = useSearchParams();
 
   const preference = params.get("duration");
 
-  const [duration, setDuration] = useState(preference ?? '');
+  const [duration, setDuration] = useState(preference ?? "");
   useEffect(() => {
     let active = true;
     setLoading(true);
-    fetchPlanCatalog(currency).then((catalog) => {
-      if (!active) return;
-      const selected = catalog.plans.find((item) => item.slug === (planSlug ?? planName?.toLowerCase()));
-      setCatalogPlan(selected ?? null);
-      setDuration((value) => selected?.prices.some((price) => price.label === value) ? value : selected?.prices[0]?.label ?? '');
-      setError(selected ? '' : 'This plan is not currently available.');
-    }).catch(() => { if (active) setError('Plan details could not be loaded. Please try again.'); }).finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+    fetchPlanCatalog(currency)
+      .then((catalog) => {
+        if (!active) return;
+        const selected = catalog.plans.find(
+          (item) => item.slug === (planSlug ?? planName?.toLowerCase()),
+        );
+        setCatalogPlan(selected ?? null);
+        setDuration((value) =>
+          selected?.prices.some((price) => price.label === value)
+            ? value
+            : (selected?.prices[0]?.label ?? ""),
+        );
+        setError(selected ? "" : "This plan is not currently available.");
+      })
+      .catch(() => {
+        if (active)
+          setError("Plan details could not be loaded. Please try again.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [currency, planName, planSlug]);
   useEffect(() => {
     const sync = () => setCurrency(getCurrencyPreference());
-    window.addEventListener('elder-care-currency-changed', sync);
-    return () => window.removeEventListener('elder-care-currency-changed', sync);
+    window.addEventListener("elder-care-currency-changed", sync);
+    return () =>
+      window.removeEventListener("elder-care-currency-changed", sync);
   }, []);
-  if (loading || error || !catalogPlan) return <section className="py-16"><p role="status" className="text-sm text-slate-600">{loading ? 'Loading plan...' : error}</p><Link to="/plans" className="text-link mt-5">All care plans <ArrowLeft size={16} /></Link></section>;
+  if (loading || error || !catalogPlan)
+    return (
+      <section className="py-16">
+        <p role="status" className="text-sm text-slate-600">
+          {loading ? "Loading plan..." : error}
+        </p>
+        <Link to="/plans" className="text-link mt-5">
+          All care plans <ArrowLeft size={16} />
+        </Link>
+      </section>
+    );
   const durations = catalogPlan.prices.map((price) => price.label);
-  const selectedPrice = catalogPlan.prices.find((price) => price.label === duration) ?? catalogPlan.prices[0];
-  const plan = { name: catalogPlan.name, label: catalogPlan.label, description: catalogPlan.description ?? '', highlights: catalogPlan.services.map((service) => service.name + ' - ' + (service.is_unlimited ? 'Unlimited' : service.quantity + ' included') + ' ' + (service.usage_period ?? '').replace(/_/g, ' ')) };
+  const selectedPrice =
+    catalogPlan.prices.find((price) => price.label === duration) ??
+    catalogPlan.prices[0];
+  const plan = {
+    name: catalogPlan.name,
+    label: catalogPlan.label,
+    description: catalogPlan.description ?? "",
+    highlights: catalogPlan.services.map(
+      (service) =>
+        service.name +
+        " - " +
+        (service.is_unlimited ? "Unlimited" : service.quantity + " included") +
+        " " +
+        (service.usage_period ?? "").replace(/_/g, " "),
+    ),
+  };
 
   const enquiry =
     "/enquiry?interest=" +
@@ -160,7 +204,8 @@ export function PlanDetailsPage({
 
             <div className="mt-6 border-l-2 border-brand-200 pl-5">
               <p className="max-w-2xl text-xs leading-6 text-slate-500">
-                Included services are covered by the subscription price. Visits are arranged subject to provider availability.
+                Included services are covered by the subscription price. Visits
+                are arranged subject to provider availability.
               </p>
             </div>
           </div>
@@ -170,8 +215,43 @@ export function PlanDetailsPage({
           =============================================== */}
 
           <aside className="lg:sticky lg:top-28">
-            {catalogPlan.features.length > 0 && <section className="mb-6"><h2 className="text-lg font-semibold text-brand-900">Plan benefits</h2><ul className="mt-3 space-y-2 text-sm text-slate-600">{catalogPlan.features.map((feature) => <li key={feature.title}>{feature.title}{feature.description ? ': ' + feature.description : ''}</li>)}</ul></section>}
-            {(catalogPlan.addon_services ?? []).length > 0 && <section className="mb-6"><h2 className="text-lg font-semibold text-brand-900">Optional add-ons</h2><ul className="mt-3 space-y-2 text-sm text-slate-600">{catalogPlan.addon_services.map((addon) => <li key={addon.id}>{addon.name} - {addon.pricing_type === 'custom' ? 'Quote required' : addon.formatted_price}{addon.notes ? '. ' + addon.notes : ''}</li>)}</ul><p className="mt-3 text-xs text-slate-500">Extra charges apply. Available after your subscription is active and paid.</p></section>}
+            {catalogPlan.features.length > 0 && (
+              <section className="mb-6">
+                <h2 className="text-lg font-semibold text-brand-900">
+                  Plan benefits
+                </h2>
+                <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                  {catalogPlan.features.map((feature) => (
+                    <li key={feature.title}>
+                      {feature.title}
+                      {feature.description ? ": " + feature.description : ""}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            {(catalogPlan.addon_services ?? []).length > 0 && (
+              <section className="mb-6">
+                <h2 className="text-lg font-semibold text-brand-900">
+                  Optional add-ons
+                </h2>
+                <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                  {catalogPlan.addon_services.map((addon) => (
+                    <li key={addon.id}>
+                      {addon.name} -{" "}
+                      {addon.pricing_type === "custom"
+                        ? "Quote required"
+                        : addon.formatted_price}
+                      {addon.notes ? ". " + addon.notes : ""}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-xs text-slate-500">
+                  Extra charges apply. Available after your subscription is
+                  active and paid.
+                </p>
+              </section>
+            )}
             <div className="overflow-hidden rounded-[24px] border border-brand-100 bg-white">
               {/* HEADER */}
 
@@ -201,7 +281,10 @@ export function PlanDetailsPage({
 
               <div className="px-6 py-7 sm:px-8">
                 <p className="text-sm leading-7 text-slate-600">
-                  {selectedPrice?.formatted_price ?? 'Pricing unavailable'}{selectedPrice ? ` + ${selectedPrice.tax_percentage}% tax before applicable discounts` : ''}
+                  {selectedPrice?.formatted_price ?? "Pricing unavailable"}
+                  {selectedPrice
+                    ? ` + ${selectedPrice.tax_percentage}% tax before applicable discounts`
+                    : ""}
                 </p>
 
                 {/* DURATION */}
@@ -262,16 +345,25 @@ export function PlanDetailsPage({
                 {/* TERM NOTE */}
 
                 <p className="mt-5 text-xs leading-6 text-slate-500">
-                  {catalogPlan.minimum_duration_months > 0 ? `Minimum subscription period: ${catalogPlan.minimum_duration_months} months.` : ''} Final charges are shown before payment.
+                  {catalogPlan.minimum_duration_months > 0
+                    ? `Minimum subscription period: ${catalogPlan.minimum_duration_months} months.`
+                    : ""}{" "}
+                  Final charges are shown before payment.
                 </p>
 
                 {/* CTA */}
 
                 <Link
-                  to={selectedPrice ? `/customer/checkout?plan=${encodeURIComponent(catalogPlan.slug)}&price=${selectedPrice.id}` : enquiry}
+                  to={
+                    selectedPrice
+                      ? `/customer/checkout?plan=${encodeURIComponent(catalogPlan.slug)}&price=${selectedPrice.id}`
+                      : enquiry
+                  }
                   className="button-primary mt-7 w-full justify-between"
                 >
-                  {selectedPrice ? 'Choose this plan' : 'Enquire about this plan'}
+                  {selectedPrice
+                    ? "Choose this plan"
+                    : "Enquire about this plan"}
                   <ArrowUpRight size={17} aria-hidden="true" />
                 </Link>
 
@@ -304,19 +396,13 @@ export function PlanDetailsPage({
           BEFORE YOU CHOOSE
       ===================================================== */}
 
-      
-
       {/* =====================================================
           SIMPLE PROCESS
       ===================================================== */}
 
-      
-
       {/* =====================================================
           FAQ
       ===================================================== */}
-
-      
 
       {/* =====================================================
           OTHER PLANS
