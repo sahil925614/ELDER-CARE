@@ -665,7 +665,7 @@ export function HomeSections() {
                   key={plan.name}
                   data-centered={centerPlan === index}
                   className={
-                    "group relative flex flex-col p-7 sm:p-9 lg:p-10 " +
+                    "home-plan-card group relative flex flex-col p-7 sm:p-9 lg:p-10 " +
                     (index !== 2
                       ? "border-b border-brand-100 lg:border-b-0 lg:border-r"
                       : "")
@@ -695,11 +695,11 @@ export function HomeSections() {
                 DESCRIPTION
             ====================== */}
 
-                  <p className="mt-5 min-h-[58px] text-sm leading-6 text-slate-600">
+                  <p className="home-plan-description mt-5 text-sm leading-6 text-slate-600">
                     {plan.description}
                   </p>
 
-                  <div className="mt-5 rounded-2xl border border-brand-100 bg-brand-50/75 px-4 py-3.5">
+                  <div className="home-plan-price mt-5 rounded-2xl border border-brand-100 bg-brand-50/75 px-4 py-3.5">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
                       {content.plans.price_label}
                     </p>
@@ -715,7 +715,7 @@ export function HomeSections() {
                 DIVIDER
             ====================== */}
 
-                  <div className="my-5 h-px bg-brand-100" />
+                  <div className="home-plan-divider my-5 h-px bg-brand-100" />
 
                   {/* =====================
                 FEATURES
@@ -725,7 +725,7 @@ export function HomeSections() {
                     {content.plans.services_label}
                   </p>
 
-                  <ul className="mt-3 space-y-2.5">
+                  <ul className="home-plan-services mt-3 space-y-2.5">
                     {(plan.services.length ? plan.services : plan.features.map((feature) => ({
                       name: feature,
                       is_unlimited: false,
@@ -759,7 +759,7 @@ export function HomeSections() {
                   </ul>
 
                   {plan.features.length > 0 && plan.services.length > 0 && (
-                    <div className="mt-4">
+                    <div className="home-plan-benefits mt-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-900">
                         {content.plans.benefits_label}
                       </p>
@@ -780,7 +780,7 @@ export function HomeSections() {
                 CTA
             ====================== */}
 
-                  <div className="mt-auto pt-6">
+                  <div className="home-plan-action mt-auto pt-6">
                     <Link
                       to={plan.priceId ?
                         "/customer/checkout?plan=" +

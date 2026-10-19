@@ -1,5 +1,5 @@
-import logo from "@/assets/logo-test.png";
-import footerLogo from "@/assets/footer-logo-test.png";
+import logo from "@/assets/testlogo.png";
+import footerLogo from "@/assets/testlogo.png";
 import { useWebsiteBranding } from '@/features/cms/websiteBranding';
 
 export function Logo({
@@ -11,9 +11,9 @@ export function Logo({
   const fallback = variant === 'footer' ? footerLogo : logo;
   return (
     <img
-      src={variant === 'footer' ? footerLogo : branding.logo_url || logo}
+      src={variant === 'footer' ? footerLogo : logo}
       alt={branding.site_name}
-      className="h-14 w-44 max-w-full object-contain"
+      className="h-10 w-32 max-w-full object-contain sm:w-44"
       onError={(event) => {
         if (event.currentTarget.src !== new URL(fallback, window.location.href).href) {
           event.currentTarget.src = fallback;

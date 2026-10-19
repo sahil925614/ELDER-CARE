@@ -1,4 +1,4 @@
-import footerLogo from '@/assets/footer-logo-test.png';
+import footerLogo from '@/assets/new-footer-logo.png';
 import { useWebsiteFooter } from '@/features/cms/websiteFooter';
 import './Footer.css';
 import { Link } from "react-router-dom";
@@ -45,7 +45,7 @@ export function Footer() {
             className="inline-flex items-center [&>img]:object-left"
             aria-label={`${footer.logo_alt} home`}
           >
-            <img src={footer.logo_url || footerLogo} alt={footer.logo_alt} className="h-14 w-44 max-w-full object-contain"
+            <img src={footerLogo} alt={footer.logo_alt} className="h-16 w-56 max-w-full object-cover"
               onError={(event) => { if (event.currentTarget.src !== new URL(footerLogo, window.location.href).href) event.currentTarget.src = footerLogo; }} />
           </FooterLink>
 
