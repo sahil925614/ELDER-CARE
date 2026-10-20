@@ -4,8 +4,6 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  Pause,
-  Play,
   Quote,
   RefreshCw,
   ShieldCheck,
@@ -84,7 +82,6 @@ function TestimonialsCarousel({
   const [cardsPerPage, setCardsPerPage] = useState(3);
   const [isHovering, setIsHovering] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [autoplayStopped, setAutoplayStopped] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const totalPages = Math.max(testimonials.length - cardsPerPage + 1, 1);
 
@@ -149,7 +146,6 @@ function TestimonialsCarousel({
     if (
       isHovering ||
       isFocused ||
-      autoplayStopped ||
       reducedMotion ||
       totalPages <= 1
     )
@@ -159,7 +155,6 @@ function TestimonialsCarousel({
   }, [
     isHovering,
     isFocused,
-    autoplayStopped,
     reducedMotion,
     totalPages,
     activePage,
@@ -207,29 +202,10 @@ function TestimonialsCarousel({
               onClick={() => scrollToPage(activePage + 1)}
               aria-label={heading.next_label}
               title={heading.next_label}
-              className="flex size-11 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-brand-900"
+              className="flex size-11 items-center justify-center rounded-full border border-brand-200 bg-white text-primary transition-colors hover:border-primary hover:bg-primary hover:text-white"
             >
               <ArrowRight size={18} aria-hidden="true" />
             </button>
-            {/* {!reducedMotion && (
-              <button
-                type="button"
-                onClick={() => setAutoplayStopped((current) => !current)}
-                aria-label={
-                  autoplayStopped ? heading.play_label : heading.pause_label
-                }
-                title={
-                  autoplayStopped ? heading.play_label : heading.pause_label
-                }
-                className="flex size-11 items-center justify-center rounded-full border border-brand-200 bg-white text-primary"
-              >
-                {autoplayStopped ? (
-                  <Play size={17} aria-hidden="true" />
-                ) : (
-                  <Pause size={17} aria-hidden="true" />
-                )}
-              </button>
-            )} */}
           </div>
         )}
       </div>
