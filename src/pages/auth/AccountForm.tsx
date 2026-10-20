@@ -4,7 +4,6 @@ import resetImage from "@/assets/about-connection.jpg";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, ArrowUpRight } from "lucide-react";
-import { PreviewNotice } from "@/pages/website/components/WebsiteExtras";
 import { ApiError } from "@/services/api/client";
 import {
   loginCustomer,
@@ -107,7 +106,6 @@ export function AccountForm({
               ? "Choose a new password for your customer account."
               : "Start with your details below."}
         </p>
-        {!passwordReset && <PreviewNotice />}
 
         <form className="mt-6 space-y-5" onSubmit={submit} onChange={() => setStatus("")}>
           {register && (

@@ -66,11 +66,3 @@ export function Intro({
     </div>
   );
 }
-
-export function PreviewNotice() {
-  return (
-    <p className="rounded-xl border border-brand-100 bg-brand-50 p-4 text-sm leading-6 text-brand-900">
-      Frontend preview: this form does not send or save information yet.
-    </p>
-  );
-}

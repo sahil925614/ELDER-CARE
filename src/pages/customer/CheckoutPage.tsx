@@ -304,7 +304,7 @@ export function CheckoutPage() {
                   </div>
                 ) : (
                   <div className="rounded-2xl border border-brand-100 bg-brand-50 p-6 text-sm text-slate-600">
-                    Add an elder profile before purchasing a subscription.
+                    Add an elder profile before purchasing a subscription.<br/>
                     <Link to="/customer/elders" className="text-link mt-3">
                       Add elder profile
                     </Link>

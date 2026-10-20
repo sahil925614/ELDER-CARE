@@ -66,6 +66,7 @@ export function HomeSections() {
   const homePlans = dynamicPlans.slice(0, 3).map((plan, index) => ({
         name: plan.name,
         slug: plan.slug,
+        isFeatured: plan.is_featured,
         number: String(index + 1).padStart(2, "0"),
         eyebrow: plan.label || plan.code || "Care plan",
         description: plan.short_description || plan.description || "Ongoing support for your loved one's care needs.",
@@ -664,6 +665,7 @@ export function HomeSections() {
                 <article
                   key={plan.name}
                   data-centered={centerPlan === index}
+                  data-featured={plan.isFeatured}
                   className={
                     "home-plan-card group relative flex flex-col p-7 sm:p-9 lg:p-10 " +
                     (index !== 2
@@ -791,7 +793,7 @@ export function HomeSections() {
                       className="group/button flex items-center justify-between border-t border-brand-100 pt-5 text-sm font-semibold text-primary"
                     >
                       {content.plans.choose_label} {plan.name}
-                      <span className="grid size-9 place-items-center rounded-full bg-brand-50 transition-all duration-300 group-hover/button:bg-primary group-hover/button:text-white">
+                      <span className="grid size-9 place-items-center rounded-full bg-brand-50 transition-all duration-300 group-hover/button:bg-primary group-hover/button:text-#147f79">
                         <ArrowUpRight
                           size={16}
                           strokeWidth={1.8}

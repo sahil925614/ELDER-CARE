@@ -103,6 +103,9 @@
   margin-top: 14px;
   padding-block: 10px;
 }
+.plans-catalogue-benefits {
+  margin-bottom: 14px;
+}
 .plans-catalogue-duration > div > div {
   display: flex;
   align-items: baseline;

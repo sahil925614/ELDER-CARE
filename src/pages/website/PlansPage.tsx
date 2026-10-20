@@ -141,8 +141,8 @@ export function PlansPage() {
         )}
 
         <div className="plans-catalogue mt-10 grid items-start gap-6 lg:grid-cols-3">
-          {plans.map((plan, index) => {
-            const isPopular = plan.is_featured || index === 1;
+          {plans.map((plan) => {
+            const isPopular = plan.is_featured;
             const selectedPrice =
               plan.prices.find((price) => price.duration_months === duration) ??
               plan.prices[0];

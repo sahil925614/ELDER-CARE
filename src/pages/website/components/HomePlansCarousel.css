@@ -135,7 +135,7 @@
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    padding: 12px 10%;
+    /* padding: 12px 10%;  */
   }
   .home-plans-track::-webkit-scrollbar { display: none; }
   .home-plans-track > article {
@@ -153,4 +153,43 @@
 }
 @media (max-width: 767px) and (prefers-reduced-motion: reduce) {
   .home-plans-track > article { transition: none; }
+}
+
+.home-plans-track > .home-plan-card[data-featured="true"] {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 16px 40px rgb(20 127 121 / 14%);
+}
+.home-plan-card[data-featured="true"] :is(h3, p) {
+  color: white;
+}
+.home-plan-card[data-featured="true"] .home-plan-description,
+.home-plan-card[data-featured="true"] .home-plan-services p + p,
+.home-plan-card[data-featured="true"] .home-plan-price > p:first-child,
+.home-plan-card[data-featured="true"] .home-plan-price > p:last-child {
+  color: rgb(255 255 255 / 75%);
+}
+.home-plan-card[data-featured="true"] > div:first-child > span {
+  color: rgb(255 255 255 / 30%);
+}
+
+.home-plan-card[data-featured="true"] .home-plan-price {
+  background: rgb(255 255 255 / 10%);
+  border-color: rgb(255 255 255 / 20%);
+}
+.home-plan-card[data-featured="true"] .home-plan-divider {
+  background: rgb(255 255 255 / 20%);
+}
+.home-plan-card[data-featured="true"] .home-plan-services > li + li {
+  border-color: rgb(255 255 255 / 20%);
+}
+.home-plan-card[data-featured="true"] .home-plan-services > li > div > span,
+.home-plan-card[data-featured="true"] .home-plan-benefits span {
+  background: rgb(255 255 255 / 12%);
+  color: white;
+}
+.home-plan-card[data-featured="true"] .home-plan-action > a {
+  background: white;
+  border-color: white;
+  color: var(--primary-color);
 }
