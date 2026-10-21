@@ -3,7 +3,7 @@ import registerImage from "@/assets/about-family.jpg";
 import resetImage from "@/assets/about-connection.jpg";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Eye, EyeOff, ArrowUpRight } from "lucide-react";
+import { Eye, EyeOff, ArrowUpRight, CircleAlert, CircleCheck } from "lucide-react";
 import { ApiError } from "@/services/api/client";
 import {
   loginCustomer,
@@ -26,6 +26,7 @@ export function AccountForm({
 }) {
   const [show, setShow] = useState(false);
   const [status, setStatus] = useState("");
+  const [statusIsError, setStatusIsError] = useState(false);
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
   const params = useParams();
@@ -43,12 +44,14 @@ export function AccountForm({
     const data = new FormData(e.currentTarget);
 
     if ((register || passwordReset) && data.get("password") !== data.get("confirmPassword")) {
+      setStatusIsError(true);
       setStatus("Your passwords do not match. Please check both fields.");
       return;
     }
 
     setBusy(true);
     setStatus("");
+    setStatusIsError(false);
 
     try {
       if (register) {
@@ -87,6 +90,7 @@ export function AccountForm({
       });
       navigate("/customer");
     } catch (error) {
+      setStatusIsError(true);
       setStatus(errorMessage(error));
     } finally {
       setBusy(false);
@@ -99,13 +103,25 @@ export function AccountForm({
         <h2 className="text-2xl font-semibold text-brand-900">
           {register ? "Create your account" : forgot || passwordReset ? "Reset your password" : "Customer login"}
         </h2>
-        <p className="my-4 text-sm leading-6 text-slate-600">
+        {status && statusIsError ? (
+          <div role="alert" className="mt-3 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-rose-800">
+            <CircleAlert size={20} className="mt-0.5 shrink-0" aria-hidden="true" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">{mode === "login" ? "Unable to sign in" : "Please check your details"}</p>
+              <p className="mt-1 text-sm leading-6">{status}</p>
+            </div>
+          </div>
+        ) : (
+        <p className="mt-2 text-sm leading-6 text-slate-500">
           {forgot
             ? "Enter your account email address."
             : passwordReset
               ? "Choose a new password for your customer account."
-              : "Start with your details below."}
+              : register
+                ? "Enter your details to create your customer account."
+                : "Sign in with your email address and password."}
         </p>
+        )}
 
         <form className="mt-6 space-y-5" onSubmit={submit} onChange={() => setStatus("")}>
           {register && (
@@ -220,9 +236,25 @@ export function AccountForm({
             <ArrowUpRight size={17} aria-hidden="true" />
           </button>
 
-          <p role="status" className="text-sm leading-6 text-primary">
-            {status}
-          </p>
+          {status && !statusIsError && (
+            <div
+              role={statusIsError ? "alert" : "status"}
+              className={"flex items-start gap-3 rounded-2xl border p-4 " +
+                (statusIsError ? "border-rose-200 bg-rose-50 text-rose-800" : "border-brand-200 bg-brand-50 text-primary")}
+            >
+              {statusIsError
+                ? <CircleAlert size={20} className="mt-0.5 shrink-0" aria-hidden="true" />
+                : <CircleCheck size={20} className="mt-0.5 shrink-0" aria-hidden="true" />}
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">
+                  {statusIsError
+                    ? mode === "login" ? "Unable to sign in" : "Please check your details"
+                    : "Request successful"}
+                </p>
+                <p className="mt-1 text-sm leading-6">{status}</p>
+              </div>
+            </div>
+          )}
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-600">

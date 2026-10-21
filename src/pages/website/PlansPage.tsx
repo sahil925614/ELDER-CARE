@@ -27,6 +27,7 @@ export function PlansPage() {
   const sections = plansPage?.sections ?? defaultPlansSections;
   const [preferredDuration, setDuration] = useState<number | null>(null);
   const [currency, setCurrency] = useState(() => getCurrencyPreference());
+  const [centerPlan, setCenterPlan] = useState(0);
   const { plans, loading, error, retry } = usePlansCatalogue(currency);
 
   useEffect(() => {
@@ -140,8 +141,28 @@ export function PlansPage() {
           </div>
         )}
 
-        <div className="plans-catalogue mt-10 grid items-start gap-6 lg:grid-cols-3">
-          {plans.map((plan) => {
+        <div
+          className="plans-catalogue mt-10 grid items-start gap-6 lg:grid-cols-3"
+          role="region"
+          aria-label="Care plans"
+          tabIndex={0}
+          onScroll={(event) => {
+            const track = event.currentTarget;
+            if (!window.matchMedia("(max-width: 767px)").matches) return;
+            const center = track.scrollLeft + track.clientWidth / 2;
+            let closest = 0;
+            let distance = Infinity;
+            Array.from(track.querySelectorAll<HTMLElement>("article")).forEach((card, index) => {
+              const next = Math.abs(card.offsetLeft + card.offsetWidth / 2 - center);
+              if (next < distance) {
+                distance = next;
+                closest = index;
+              }
+            });
+            setCenterPlan(closest);
+          }}
+        >
+          {plans.map((plan, index) => {
             const isPopular = plan.is_featured;
             const selectedPrice =
               plan.prices.find((price) => price.duration_months === duration) ??
@@ -151,6 +172,7 @@ export function PlansPage() {
             return (
               <article
                 key={plan.id}
+                data-centered={centerPlan === index}
                 className={
                   "plans-catalogue-card relative flex flex-col overflow-hidden rounded-[28px] border transition-all duration-300 " +
                   (isPopular

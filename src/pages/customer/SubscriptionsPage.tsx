@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -14,6 +14,8 @@ import {
   ReceiptText,
   Sparkles,
   Users,
+  X,
+  CircleAlert,
 } from "lucide-react";
 
 import {
@@ -252,23 +254,27 @@ function SubscriptionCard({
 }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelNote, setCancelNote] = useState("");
+  const actionPending = useRef(false);
   const statusSlug = subscription.status.slug.toLowerCase();
 
   async function runAction(action: "pause" | "resume" | "cancel") {
-    const note =
-      action === "cancel"
-        ? window.prompt("Optional cancellation note", "") || undefined
-        : undefined;
-
+    if (actionPending.current || busy) return;
+    if (action === "cancel" && !cancelOpen) return;
+    actionPending.current = true;
+    const note = action === "cancel" ? cancelNote.trim() || undefined : undefined;
     setBusy(action);
     setMessage("");
     try {
       const response = await updateCustomerSubscriptionAction(subscription.id, action, note);
+      if (action === "cancel") setCancelOpen(false);
       setMessage(response?.message || "Subscription updated.");
       await onChanged();
     } catch (caught) {
       setMessage(errorMessage(caught));
     } finally {
+      actionPending.current = false;
       setBusy(null);
     }
   }
@@ -467,7 +473,11 @@ function SubscriptionCard({
             </ActionPill>
           )}
           {!["cancelled", "expired"].includes(statusSlug) && (
-            <ActionPill disabled={!!busy} tone="danger" loading={busy === "cancel"} onClick={() => runAction("cancel")}>
+            <ActionPill disabled={!!busy} tone="danger" loading={busy === "cancel"} onClick={() => {
+              setMessage("");
+              setCancelNote("");
+              setCancelOpen(true);
+            }}>
               Cancel
             </ActionPill>
           )}
@@ -486,12 +496,92 @@ function SubscriptionCard({
         </div>
       </div>
 
-      {message && (
+      {cancelOpen && (
+        <CancelSubscriptionDialog
+          planName={subscription.plan.name || "Subscription plan"}
+          note={cancelNote}
+          onNoteChange={setCancelNote}
+          busy={busy === "cancel"}
+          error={message}
+          onClose={() => { if (!actionPending.current) setCancelOpen(false); }}
+          onConfirm={() => void runAction("cancel")}
+        />
+      )}
+      {message && !cancelOpen && (
         <div className="border-t border-brand-100 bg-brand-50/55 px-6 py-3 text-xs font-medium text-primary sm:px-8">
           {message}
         </div>
       )}
     </article>
+  );
+}
+
+function CancelSubscriptionDialog({
+  planName, note, onNoteChange, busy, error, onClose, onConfirm,
+}: {
+  planName: string;
+  note: string;
+  onNoteChange: (value: string) => void;
+  busy: boolean;
+  error: string;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const id = useId();
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const previousOverflow = document.body.style.overflow;
+    dialog.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  return (
+    <dialog
+      ref={dialogRef}
+      aria-labelledby={`${id}-title`}
+      aria-describedby={`${id}-description`}
+      aria-busy={busy}
+      className="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-[26px] border border-brand-100 bg-white p-0 text-brand-900 shadow-2xl backdrop:bg-slate-950/60 backdrop:backdrop-blur-sm"
+      onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}
+      onClick={(event) => {
+        if (event.target !== event.currentTarget || busy) return;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) onClose();
+      }}
+    >
+      <form onSubmit={(event) => { event.preventDefault(); if (!busy) onConfirm(); }}>
+        <div className="p-6 sm:p-8">
+          <div className="flex items-start justify-between gap-4">
+            <span className="flex size-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-700">
+              <CircleAlert size={24} aria-hidden="true" />
+            </span>
+            <button type="button" disabled={busy} onClick={onClose} aria-label="Close cancellation dialog" className="flex size-10 items-center justify-center rounded-full border border-brand-100 text-slate-500 transition-colors hover:bg-brand-50 disabled:opacity-50">
+              <X size={18} aria-hidden="true" />
+            </button>
+          </div>
+          <h2 id={`${id}-title`} className="mt-5 text-xl font-semibold tracking-tight">Cancel subscription?</h2>
+          <p id={`${id}-description`} className="mt-3 text-sm leading-6 text-slate-500">
+            Please confirm if you want to cancel your {planName} subscription. To leave it unchanged, choose Keep subscription.
+          </p>
+          <label htmlFor={`${id}-note`} className="mt-6 block text-xs font-semibold">Cancellation note <span className="font-normal text-slate-400">(optional)</span></label>
+          <textarea id={`${id}-note`} value={note} disabled={busy} onChange={(event) => onNoteChange(event.target.value)} rows={3} placeholder="Tell us why you’re leaving…" className="mt-2 w-full resize-y rounded-xl border border-brand-100 bg-white px-4 py-3 text-sm text-brand-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-60" />
+          {error && <p role="alert" className="mt-3 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-xs text-rose-700">{error}</p>}
+        </div>
+        <div className="flex flex-col gap-3 border-t border-brand-100 bg-brand-50/35 px-6 py-5 sm:flex-row sm:px-8">
+          <button autoFocus type="button" disabled={busy} onClick={onClose} className="min-h-11 flex-1 rounded-full border border-brand-100 bg-white px-4 text-xs font-semibold text-primary hover:bg-brand-50 disabled:opacity-60">Keep subscription</button>
+          <button type="submit" disabled={busy} className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-rose-700 px-4 text-xs font-semibold text-white hover:bg-rose-800 disabled:cursor-wait disabled:opacity-60">
+            {busy && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
+            {busy ? "Cancelling…" : "Cancel subscription"}
+          </button>
+        </div>
+      </form>
+    </dialog>
   );
 }
 

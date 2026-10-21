@@ -23,6 +23,34 @@
 .plans-catalogue-card {
   border-radius: 24px;
 }
+@media (max-width: 767px) {
+  .plans-catalogue {
+    position: relative;
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .plans-catalogue::-webkit-scrollbar {
+    display: none;
+  }
+  .plans-catalogue > .plans-catalogue-card {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: center;
+    scale: 0.91;
+    transition: scale 280ms ease;
+  }
+  .plans-catalogue > .plans-catalogue-card[data-centered="true"] {
+    scale: 1;
+  }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .plans-catalogue > .plans-catalogue-card {
+    transition: none;
+  }
+}
 .plans-catalogue-badge {
   padding-block: 7px;
 }
