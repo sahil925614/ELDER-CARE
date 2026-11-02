@@ -17,6 +17,12 @@ export function Footer() {
   const groups = footer.groups;
   const legalLinks = footer.legal_links.filter((link) => link.enabled);
   const [openGroup, setOpenGroup] = useState<number | null>(0);
+  const socialLinks = [
+    { key: 'facebook', label: 'Facebook', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 22v-9h3l.5-4H14V7c0-1.2.3-2 2-2h2V1.4A25 25 0 0 0 15 1c-3 0-5 1.8-5 5v3H7v4h3v9z" /></svg> },
+    { key: 'instagram', label: 'Instagram', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg> },
+    { key: 'youtube', label: 'YouTube', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4" /><path d="m10 9 5 3-5 3z" fill="currentColor" stroke="none" /></svg> },
+    { key: 'tiktok', label: 'TikTok', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 3c.4 2.3 1.7 3.7 4 3.9v3.5a9 9 0 0 1-4-1.2v7.1a6.3 6.3 0 1 1-5.4-6.2v3.6a2.8 2.8 0 1 0 1.9 2.6V3z" /></svg> },
+  ] as const;
 
   return (
     <footer className="website-footer bg-brand-900 text-white">
@@ -45,7 +51,7 @@ export function Footer() {
             className="inline-flex items-center [&>img]:object-left"
             aria-label={`${footer.logo_alt} home`}
           >
-            <img src={footerLogo} alt={footer.logo_alt} className="h-16 w-56 max-w-full object-contain"
+            <img src={footer.logo_url || footerLogo} alt={footer.logo_alt} className="h-16 w-56 max-w-full object-contain"
               onError={(event) => { if (event.currentTarget.src !== new URL(footerLogo, window.location.href).href) event.currentTarget.src = footerLogo; }} />
           </FooterLink>
 
@@ -103,6 +109,19 @@ export function Footer() {
               aria-hidden="true"
             />
           </FooterLink>}
+          {socialLinks.some(({ key }) => footer.social_links?.[key]?.trim()) && (
+            <nav aria-label="Social media" className="mt-6 flex flex-wrap gap-3">
+              {socialLinks.map(({ key, label, icon }) => {
+                const url = footer.social_links?.[key]?.trim();
+                if (!url || !/^https?:\/\//i.test(url)) return null;
+                return (
+                  <FooterLink key={key} url={url} newTab aria-label={label} className="inline-flex size-10 items-center justify-center rounded-full border border-white/20 text-brand-100 transition-colors hover:bg-white/10 hover:text-white">
+                    {icon}
+                  </FooterLink>
+                );
+              })}
+            </nav>
+          )}
         </div>
 
         {/* =================================================

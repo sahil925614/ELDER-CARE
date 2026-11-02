@@ -12,6 +12,7 @@ const link = (url: string, label: string): FooterLinkItem => ({ url, label, enab
 
 export const defaultWebsiteFooter = {
   logo_url: '',
+  social_links: { facebook: '', instagram: '', youtube: '', tiktok: '' },
   logo_alt: 'Elder Care',
   home_url: '/',
   description: 'Compassionate care. Meaningful connections. Support that puts your loved ones first.',

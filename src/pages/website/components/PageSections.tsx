@@ -4,6 +4,7 @@ import { ArrowUpRight, ChevronDown, Mail } from "lucide-react";
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { defaultNewsletterContent, type NewsletterContent } from "@/features/cms/newsletterContent";
 import { CmsLink } from "@/features/cms/CmsLink";
+import { ApiError, apiRequest } from "@/services/api/client";
 
 export function PageHero({
   label,
@@ -76,14 +77,31 @@ export function PageHero({
 export function PageCta({ content = defaultNewsletterContent }: { content?: NewsletterContent }) {
   const emailId = useId();
   const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  function subscribe(event: FormEvent<HTMLFormElement>) {
+  async function subscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // Connect the newsletter API here when its contract is available.
-    // Do not store addresses or report success until the server confirms it.
-    setMessage(
-      "Your email is valid, but newsletter subscriptions are not connected yet. Your address has not been sent or saved.",
-    );
+    if (submitting) return;
+    const form = event.currentTarget;
+    const email = String(new FormData(form).get("email") || "").trim();
+    setSubmitting(true);
+    setMessage("");
+    try {
+      const response = await apiRequest<{ message?: string }>("website/newsletter-subscriptions", {
+        method: "POST",
+        body: JSON.stringify({ email, source: "website-newsletter", website: "" }),
+      });
+      setMessage(response?.message || "Thank you for subscribing to our newsletter.");
+      form.reset();
+    } catch (error) {
+      const details = error instanceof ApiError
+        ? error.details as { message?: string; errors?: Record<string, string[]> } | undefined
+        : undefined;
+      const validationError = details?.errors ? Object.values(details.errors)[0]?.[0] : undefined;
+      setMessage(validationError || details?.message || "Unable to subscribe right now. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -131,6 +149,7 @@ export function PageCta({ content = defaultNewsletterContent }: { content?: News
                   id={emailId}
                   name="email"
                   type="email"
+                  disabled={submitting}
                   required
                   maxLength={254}
                   autoComplete="email"
@@ -140,16 +159,17 @@ export function PageCta({ content = defaultNewsletterContent }: { content?: News
                 />
                 <button
                   type="submit"
+                  disabled={submitting}
                   className="group inline-flex shrink-0 items-center justify-center gap-3 rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-brand-50 focus-visible:outline-white"
                 >
-                  {content.button_label} <ArrowUpRight size={17} aria-hidden="true" />
+                  {submitting ? "Subscribing..." : content.button_label} <ArrowUpRight size={17} aria-hidden="true" />
                 </button>
               </div>
               <p
                 id={emailId + "-note"}
                 className="mt-4 text-xs leading-6 text-white/80"
               >
-                Preview only: subscriptions are not yet connected. Read our{" "}
+                Read our{" "}
                 <CmsLink
                   to={content.privacy_url}
                   className="underline underline-offset-2 hover:text-white focus-visible:outline-white"
