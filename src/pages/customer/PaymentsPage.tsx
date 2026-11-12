@@ -553,11 +553,12 @@ function InvoiceModal({
         </div>
       )}
 
+      <div className="mt-6 flex flex-wrap items-center gap-3">
       <a
         href={customerInvoicePdfUrl(invoice.id)}
         target="_blank"
         rel="noreferrer"
-        className="button-primary mt-6"
+        className="button-primary"
       >
         <Download size={16} aria-hidden="true" />
         View invoice PDF
@@ -568,12 +569,13 @@ function InvoiceModal({
           type="button"
           disabled={paying}
           onClick={payInvoice}
-          className="button-outline mt-3 disabled:opacity-50"
+          className="button-outline disabled:opacity-50"
         >
           {paying ? <Loader2 className="animate-spin" size={16} /> : <CreditCard size={16} />}
           Pay now
         </button>
       )}
+      </div>
 
       {message && (
         <p className="mt-3 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-xs font-medium text-primary">

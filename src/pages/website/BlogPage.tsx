@@ -105,7 +105,7 @@ export function BlogPage() {
           </nav>}
         </div>
         <aside className={'min-w-0 self-start lg:sticky lg:top-28 ' + (isArticle ? '' : 'order-1 lg:order-2')}>
-          <div className="space-y-9 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:border-l lg:border-brand-100 lg:pl-8 lg:pr-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div data-lenis-prevent={!isArticle || undefined} className="space-y-9 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:border-l lg:border-brand-100 lg:pl-8 lg:pr-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {!isArticle && <div>
               <h2 className="text-lg font-semibold text-brand-900">{content.sidebar.search_label}</h2><div className="mt-4 h-px bg-brand-100" />
               <div className="relative mt-4"><Search size={18} className="pointer-events-none absolute left-0 top-3.5 text-slate-400" aria-hidden="true" />

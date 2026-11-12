@@ -12,7 +12,7 @@ import {
   Layers,
   Loader2,
   ReceiptText,
-  Sparkles,
+  History,
   Users,
   X,
   CircleAlert,
@@ -217,7 +217,7 @@ export function SubscriptionsPage() {
               </Link>
             </InfoPanel>
 
-            <InfoPanel title="Recent activity" icon={<Sparkles size={19} />}>
+            <InfoPanel title="Recent activity" icon={<History size={19} />}>
               {selected.history.length ? (
                 <div className="space-y-4">
                   {selected.history.slice(0, 5).map((item) => (
@@ -391,7 +391,7 @@ function SubscriptionCard({
           </div>
         </section>
 
-        <section className="rounded-2xl border border-brand-100 bg-brand-50/35 p-5">
+        <section className="self-start rounded-2xl border border-brand-100 bg-brand-50/35 p-5">
           <h3 className="text-sm font-semibold text-brand-900">
             Billing summary
           </h3>
@@ -484,7 +484,7 @@ function SubscriptionCard({
           <ActionPill disabled={!!busy} loading={busy === "renew"} onClick={runRenew}>
             Renew
           </ActionPill>
-          <Link to="/contact?interest=Subscription%20question" className="button-primary group">
+          <Link to="/contact?interest=Subscription%20question" className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-primary bg-primary px-4 text-xs font-semibold text-white transition-colors hover:bg-brand-900">
             Ask
             <ArrowUpRight
               size={16}
