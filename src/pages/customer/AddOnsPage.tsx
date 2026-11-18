@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { TimeInput } from '@/components/common/TimeInput';
+import { TimeInput } from "@/components/common/TimeInput";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -34,23 +34,32 @@ declare global {
   interface Window {
     Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
     paypal?: {
-      Buttons: (options: Record<string, unknown>) => { render: (selector: string) => Promise<void> };
+      Buttons: (options: Record<string, unknown>) => {
+        render: (selector: string) => Promise<void>;
+      };
     };
   }
 }
 
 export function AddOnsPage() {
   const [params] = useSearchParams();
-  const [tab, setTab] = useState<"Explore services" | "My services">("Explore services");
+  const [tab, setTab] = useState<"Explore services" | "My services">(
+    "Explore services",
+  );
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All categories");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [subscriptions, setSubscriptions] = useState<CustomerAddonSubscription[]>([]);
-  const [subscriptionId, setSubscriptionId] = useState(Number(params.get('subscription')) || 0);
+  const [subscriptions, setSubscriptions] = useState<
+    CustomerAddonSubscription[]
+  >([]);
+  const [subscriptionId, setSubscriptionId] = useState(
+    Number(params.get("subscription")) || 0,
+  );
   const [orders, setOrders] = useState<CustomerAddonOrder[]>([]);
   const [currency, setCurrency] = useState(() => getCurrencyPreference());
-  const [selectedService, setSelectedService] = useState<CustomerAddonService | null>(null);
+  const [selectedService, setSelectedService] =
+    useState<CustomerAddonService | null>(null);
   const [successOpen, setSuccessOpen] = useState(false);
 
   const loadAddons = useCallback(async () => {
@@ -59,7 +68,11 @@ export function AddOnsPage() {
     try {
       const addonData = await fetchCustomerAddons(currency);
       setSubscriptions(addonData.subscriptions);
-      setSubscriptionId((id) => addonData.subscriptions.some((item) => item.id === id) ? id : addonData.subscriptions[0]?.id ?? 0);
+      setSubscriptionId((id) =>
+        addonData.subscriptions.some((item) => item.id === id)
+          ? id
+          : (addonData.subscriptions[0]?.id ?? 0),
+      );
       setOrders(addonData.orders);
     } catch (caught) {
       setError(errorMessage(caught));
@@ -75,12 +88,18 @@ export function AddOnsPage() {
   useEffect(() => {
     const syncCurrency = () => setCurrency(getCurrencyPreference());
     window.addEventListener("elder-care-currency-changed", syncCurrency);
-    return () => window.removeEventListener("elder-care-currency-changed", syncCurrency);
+    return () =>
+      window.removeEventListener("elder-care-currency-changed", syncCurrency);
   }, []);
 
-  const selectedSubscription = subscriptions.find((item) => item.id === subscriptionId);
+  const selectedSubscription = subscriptions.find(
+    (item) => item.id === subscriptionId,
+  );
   const services = selectedSubscription?.services ?? [];
-  const categories = ["All categories", ...Array.from(new Set(services.map((service) => service.category)))];
+  const categories = [
+    "All categories",
+    ...Array.from(new Set(services.map((service) => service.category))),
+  ];
 
   const visible = services.filter(
     (service) =>
@@ -111,7 +130,9 @@ export function AddOnsPage() {
                 onClick={() => setTab(item)}
                 className={
                   "relative px-1 pb-4 pr-7 text-sm font-semibold transition-colors " +
-                  (selected ? "text-primary" : "text-slate-400 hover:text-brand-900")
+                  (selected
+                    ? "text-primary"
+                    : "text-slate-400 hover:text-brand-900")
                 }
               >
                 {item}
@@ -151,14 +172,32 @@ export function AddOnsPage() {
           {subscriptions.length ? (
             <label className="mb-6 block text-sm font-semibold text-brand-900">
               Elder and subscription
-              <select value={subscriptionId} onChange={(event) => { setSubscriptionId(Number(event.target.value)); setCategory('All categories'); setSelectedService(null); }} className="mt-2 h-12 w-full rounded-lg border border-brand-100 bg-white px-4">
-                {subscriptions.map((item) => <option key={item.id} value={item.id}>{item.elder.name} - {item.plan_name} ({item.subscription_number})</option>)}
+              <select
+                value={subscriptionId}
+                onChange={(event) => {
+                  setSubscriptionId(Number(event.target.value));
+                  setCategory("All categories");
+                  setSelectedService(null);
+                }}
+                className="mt-2 h-12 w-full rounded-lg border border-brand-100 bg-white px-4"
+              >
+                {subscriptions.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.elder.name} - {item.plan_name} (
+                    {item.subscription_number})
+                  </option>
+                ))}
               </select>
             </label>
           ) : (
             <div className="mb-6 border-b border-brand-100 py-6">
-              <p className="mb-4 text-sm text-slate-600">An active, paid subscription is required to purchase add-ons for an elder.</p>
-              <Link to="/customer/checkout" className="button-primary">Purchase a subscription <ArrowUpRight size={16} /></Link>
+              <p className="mb-4 text-sm text-slate-600">
+                An active, paid subscription is required to purchase add-ons for
+                an elder.
+              </p>
+              <Link to="/customer/checkout" className="button-primary">
+                Purchase a subscription <ArrowUpRight size={16} />
+              </Link>
             </div>
           )}
           <div className="mb-7 flex flex-col gap-3 sm:flex-row">
@@ -223,7 +262,9 @@ export function AddOnsPage() {
               ))}
             </section>
           ) : (
-            subscriptions.length > 0 && <EmptyState text="No add-ons are available for this subscription and selection." />
+            subscriptions.length > 0 && (
+              <EmptyState text="No add-ons are available for this subscription and selection." />
+            )
           )}
         </>
       )}
@@ -257,9 +298,7 @@ export function AddOnsPage() {
         />
       )}
 
-      {successOpen && (
-        <SuccessPopup onClose={() => setSuccessOpen(false)} />
-      )}
+      {successOpen && <SuccessPopup onClose={() => setSuccessOpen(false)} />}
     </>
   );
 }
@@ -295,19 +334,29 @@ function ServiceCard({
           {service.formatted_price}
         </p>
         <p className="mt-1 text-[11px] text-slate-500">
-          Tax {service.tax_percentage}% {service.requires_appointment ? "| Appointment needed" : ""}
+          Tax {service.tax_percentage}%{" "}
+          {service.requires_appointment ? "| Appointment needed" : ""}
         </p>
       </div>
 
       <button
         type="button"
         onClick={onPurchase}
-        className="button-primary mt-5"
+        className="button-primary mt-5 cursor-pointer"
       >
-        {service.pricing_type === 'custom' ? 'View quote details' : 'Purchase add-on'}
+        {service.pricing_type === "custom"
+          ? "View quote details"
+          : "Purchase add-on"}
         <ArrowUpRight size={16} aria-hidden="true" />
       </button>
-      {service.pricing_type === 'custom' && <Link to={'/enquiry?interest=' + encodeURIComponent(service.name)} className="text-link mt-3">Request quote <ArrowUpRight size={15} /></Link>}
+      {service.pricing_type === "custom" && (
+        <Link
+          to={"/enquiry?interest=" + encodeURIComponent(service.name)}
+          className="text-link mt-3"
+        >
+          Request quote <ArrowUpRight size={15} />
+        </Link>
+      )}
     </article>
   );
 }
@@ -331,31 +380,47 @@ function PurchaseModal({
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const [createdOrder, setCreatedOrder] = useState<NonNullable<Awaited<ReturnType<typeof createCustomerAddonOrder>>> | null>(null);
+  const [createdOrder, setCreatedOrder] = useState<NonNullable<
+    Awaited<ReturnType<typeof createCustomerAddonOrder>>
+  > | null>(null);
 
   async function submit() {
+    // 💡 Add validation if the service requires an appointment
+    if (service.requires_appointment && (!requestedDate || !requestedTime)) {
+      setMessage("Please select both a preferred date and time for this appointment-based service.");
+      return;
+    }
+
     setBusy(true);
     setMessage("");
     try {
-      const response = createdOrder ?? await createCustomerAddonOrder({
-        service_id: service.id,
-        subscription_id: subscription.id,
-        elder_profile_id: subscription.elder.id,
-        quantity,
-        currency,
-        requested_date: requestedDate || undefined,
-        requested_time: requestedTime || undefined,
-        customer_note: note || undefined,
-      });
-      if (!response) throw new Error('The order could not be created.');
+      const response =
+        createdOrder ??
+        (await createCustomerAddonOrder({
+          service_id: service.id,
+          subscription_id: subscription.id,
+          elder_profile_id: subscription.elder.id,
+          quantity,
+          currency,
+          requested_date: requestedDate || undefined,
+          requested_time: requestedTime || undefined,
+          customer_note: note || undefined,
+        }));
+      if (!response) throw new Error("The order could not be created.");
       setCreatedOrder(response);
 
-      const paymentOrder = createdOrder ? await createInvoicePaymentOrder(response.invoice.id) : response.payment_order;
+      const paymentOrder = createdOrder
+        ? await createInvoicePaymentOrder(response.invoice.id)
+        : response.payment_order;
       if (paymentOrder?.enabled && response.invoice) {
         if (paymentOrder.gateway === "razorpay") {
-          await withGatewayCheckout(() => payWithRazorpay(paymentOrder, response.invoice.id));
+          await withGatewayCheckout(() =>
+            payWithRazorpay(paymentOrder, response.invoice.id),
+          );
         } else {
-          await withGatewayCheckout(() => payWithPaypal(paymentOrder, response.invoice.id));
+          await withGatewayCheckout(() =>
+            payWithPaypal(paymentOrder, response.invoice.id),
+          );
         }
       }
 
@@ -372,28 +437,54 @@ function PurchaseModal({
       <div className="rounded-2xl border border-brand-100 bg-brand-50/65 p-4">
         <p className="text-lg font-semibold text-brand-900">{service.name}</p>
         <p className="mt-1 text-sm text-slate-500">
-          {service.formatted_price} {service.pricing_type === 'hourly' ? 'per hour' : service.pricing_type === 'per_visit' ? 'per visit' : 'per unit'}
+          {service.formatted_price}{" "}
+          {service.pricing_type === "hourly"
+            ? "per hour"
+            : service.pricing_type === "per_visit"
+              ? "per visit"
+              : "per unit"}
         </p>
       </div>
 
       <fieldset disabled={busy || !!createdOrder} className="mt-5 grid gap-4">
-        <p className="text-sm font-semibold text-brand-900">{subscription.elder.name} - {subscription.plan_name}</p>
-        {service.notes && <p className="text-sm text-slate-600">{service.notes}</p>}
-        {service.included_allowance && (service.included_allowance.is_unlimited || (service.included_allowance.remaining_quantity ?? 0) > 0) && (
-          <div className="border-l-2 border-primary pl-4 text-sm text-slate-600">
-            <p>{service.included_allowance.is_unlimited ? 'This service is unlimited in your plan.' : `${service.included_allowance.remaining_quantity} included visits remain in this period.`}</p>
-            <Link className="text-link mt-2" to={`/customer/appointments?subscription=${subscription.id}&service=${service.id}`}>Book an included visit <ArrowUpRight size={15} /></Link>
-          </div>
+        <p className="text-sm font-semibold text-brand-900">
+          {subscription.elder.name} - {subscription.plan_name}
+        </p>
+        {service.notes && (
+          <p className="text-sm text-slate-600">{service.notes}</p>
         )}
+        {service.included_allowance &&
+          (service.included_allowance.is_unlimited ||
+            (service.included_allowance.remaining_quantity ?? 0) > 0) && (
+            <div className="border-l-2 border-primary pl-4 text-sm text-slate-600">
+              <p>
+                {service.included_allowance.is_unlimited
+                  ? "This service is unlimited in your plan."
+                  : `${service.included_allowance.remaining_quantity} included visits remain in this period.`}
+              </p>
+              <Link
+                className="text-link mt-2"
+                to={`/customer/appointments?subscription=${subscription.id}&service=${service.id}`}
+              >
+                Book an included visit <ArrowUpRight size={15} />
+              </Link>
+            </div>
+          )}
 
         <label className="text-sm font-semibold text-brand-900">
-          {service.pricing_type === 'hourly' ? 'Hours' : service.pricing_type === 'per_visit' ? 'Visits' : 'Quantity'}
+          {service.pricing_type === "hourly"
+            ? "Hours"
+            : service.pricing_type === "per_visit"
+              ? "Visits"
+              : "Quantity"}
           <input
             type="number"
             min={1}
             max={20}
             value={quantity}
-            onChange={(event) => setQuantity(Math.max(1, Number(event.target.value)))}
+            onChange={(event) =>
+              setQuantity(Math.max(1, Number(event.target.value)))
+            }
             className="mt-2 h-12 w-full rounded-xl border border-brand-100 px-4 text-sm outline-none focus:border-primary"
           />
         </label>
@@ -404,7 +495,7 @@ function PurchaseModal({
               Preferred date
               <input
                 type="date"
-                min={new Date().toLocaleDateString('en-CA')}
+                min={new Date().toLocaleDateString("en-CA")}
                 max={subscription.end_date}
                 value={requestedDate}
                 onChange={(event) => setRequestedDate(event.target.value)}
@@ -413,7 +504,11 @@ function PurchaseModal({
             </label>
             <div className="min-w-0 text-sm font-semibold text-brand-900">
               Preferred time
-              <TimeInput label="Preferred time" value={requestedTime} onChange={setRequestedTime} />
+              <TimeInput
+                label="Preferred time"
+                value={requestedTime}
+                onChange={setRequestedTime}
+              />
             </div>
           </div>
         )}
@@ -438,18 +533,38 @@ function PurchaseModal({
 
       <div className="mt-5 border-t border-brand-100 pt-4 text-sm text-brand-900">
         <p>Subtotal: {formatMoney(service.price * quantity, currency)}</p>
-        <p className="mt-1 text-slate-500">Tax ({service.tax_percentage}%): {formatMoney(service.price * quantity * service.tax_percentage / 100, currency)}</p>
-        <p className="mt-2 font-semibold">Total: {formatMoney(service.price * quantity * (1 + service.tax_percentage / 100), currency)}</p>
+        <p className="mt-1 text-slate-500">
+          Tax ({service.tax_percentage}%):{" "}
+          {formatMoney(
+            (service.price * quantity * service.tax_percentage) / 100,
+            currency,
+          )}
+        </p>
+        <p className="mt-2 font-semibold">
+          Total:{" "}
+          {formatMoney(
+            service.price * quantity * (1 + service.tax_percentage / 100),
+            currency,
+          )}
+        </p>
       </div>
 
       <button
         type="button"
-        disabled={busy || service.pricing_type === 'custom'}
+        disabled={busy || service.pricing_type === "custom"}
         onClick={submit}
-        className="button-primary mt-6 w-full justify-center disabled:opacity-60"
+        className="button-primary mt-6 w-full justify-center disabled:opacity-60 cursor-pointer"
       >
-        {busy ? <Loader2 className="animate-spin" size={17} /> : <CreditCard size={17} />}
-        {service.pricing_type === 'custom' ? 'Quote required' : createdOrder ? 'Retry payment' : 'Create and pay'}
+        {busy ? (
+          <Loader2 className="animate-spin" size={17} />
+        ) : (
+          <CreditCard size={17} />
+        )}
+        {service.pricing_type === "custom"
+          ? "Quote required"
+          : createdOrder
+            ? "Retry payment"
+            : "Create and pay"}
       </button>
     </Modal>
   );
@@ -472,12 +587,33 @@ function OrderRow({ order }: { order: CustomerAddonOrder }) {
               <Badge>{order.payment_status}</Badge>
             </div>
             <p className="mt-2 text-xs text-slate-500">
-              {order.addon_order_number} | {order.elder.name || "Elder"} | Qty {order.quantity}
+              {order.addon_order_number} | {order.elder.name || "Elder"} | Qty{" "}
+              {order.quantity}
             </p>
-            {order.subscription && <p className="mt-1 text-xs text-slate-500">{order.subscription.plan_name} - {order.subscription.subscription_number}</p>}
+            {order.subscription && (
+              <p className="mt-1 text-xs text-slate-500">
+                {order.subscription.plan_name} -{" "}
+                {order.subscription.subscription_number}
+              </p>
+            )}
             <div className="mt-3 flex flex-wrap gap-4">
-              {order.service.requires_appointment && order.payment_status === 'Paid' && !['Completed', 'Cancelled', 'Refunded'].includes(order.status) && <Link to={`/customer/appointments?addon=${order.id}`} className="text-link">Request a visit <ArrowUpRight size={15} /></Link>}
-              {order.invoice && order.invoice.balance_amount > 0 && <Link to="/customer/payments" className="text-link">Complete payment <CreditCard size={15} /></Link>}
+              {order.service.requires_appointment &&
+                order.payment_status === "Paid" &&
+                !["Completed", "Cancelled", "Refunded"].includes(
+                  order.status,
+                ) && (
+                  <Link
+                    to={`/customer/appointments?addon=${order.id}`}
+                    className="text-link"
+                  >
+                    Request a visit <ArrowUpRight size={15} />
+                  </Link>
+                )}
+              {order.invoice && order.invoice.balance_amount > 0 && (
+                <Link to="/customer/payments" className="text-link">
+                  Complete payment <CreditCard size={15} />
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -496,7 +632,10 @@ function OrderRow({ order }: { order: CustomerAddonOrder }) {
 }
 
 function formatMoney(amount: number, currency: string) {
-  return new Intl.NumberFormat(currency === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency }).format(amount);
+  return new Intl.NumberFormat(currency === "INR" ? "en-IN" : "en-US", {
+    style: "currency",
+    currency,
+  }).format(amount);
 }
 
 function SuccessPopup({ onClose }: { onClose: () => void }) {
@@ -510,9 +649,14 @@ function SuccessPopup({ onClose }: { onClose: () => void }) {
           Add-on order created
         </h2>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-500">
-          Your order is visible in My services. Paid services can be arranged with the care team; unpaid orders remain pending.
+          Your order is visible in My services. Paid services can be arranged
+          with the care team; unpaid orders remain pending.
         </p>
-        <button type="button" onClick={onClose} className="button-primary mt-6 justify-center">
+        <button
+          type="button"
+          onClick={onClose}
+          className="button-primary mt-6 justify-center"
+        >
           Continue
         </button>
       </div>
@@ -521,7 +665,10 @@ function SuccessPopup({ onClose }: { onClose: () => void }) {
 }
 
 async function payWithRazorpay(order: PaymentOrder, invoiceId: number) {
-  await loadScript("https://checkout.razorpay.com/v1/checkout.js", "razorpay-checkout-js");
+  await loadScript(
+    "https://checkout.razorpay.com/v1/checkout.js",
+    "razorpay-checkout-js",
+  );
 
   if (!window.Razorpay || !order.key_id || !order.order_id) {
     throw new Error("Razorpay checkout could not be loaded.");
@@ -574,7 +721,8 @@ async function payWithPaypal(order: PaymentOrder, invoiceId: number) {
     container.style.display = "grid";
     container.style.placeItems = "center";
     container.style.background = "rgba(15, 23, 42, 0.45)";
-    container.innerHTML = '<div style="width:min(420px, calc(100vw - 32px));border-radius:24px;background:#fff;padding:24px;box-shadow:0 24px 80px rgba(15,23,42,.25)"><div id="paypal-addon-buttons"></div></div>';
+    container.innerHTML =
+      '<div style="width:min(420px, calc(100vw - 32px));border-radius:24px;background:#fff;padding:24px;box-shadow:0 24px 80px rgba(15,23,42,.25)"><div id="paypal-addon-buttons"></div></div>';
     document.body.appendChild(container);
   }
 
@@ -597,7 +745,10 @@ async function payWithPaypal(order: PaymentOrder, invoiceId: number) {
           createOrder: () => order.order_id,
           onApprove: async (data: { orderID?: string }) => {
             try {
-              await capturePaypalPayment({ invoice_id: invoiceId, order_id: data.orderID || order.order_id || "" });
+              await capturePaypalPayment({
+                invoice_id: invoiceId,
+                order_id: data.orderID || order.order_id || "",
+              });
               resolve();
             } catch (caught) {
               reject(caught);
@@ -639,11 +790,21 @@ function loadScript(src: string, id: string) {
 }
 
 function errorMessage(error: unknown) {
-  if (error instanceof ApiError && typeof error.details === "object" && error.details) {
-    const details = error.details as { message?: string; errors?: Record<string, string[]> };
-    return details.message || Object.values(details.errors ?? {})[0]?.[0] || "Add-on request failed.";
+  if (
+    error instanceof ApiError &&
+    typeof error.details === "object" &&
+    error.details
+  ) {
+    const details = error.details as {
+      message?: string;
+      errors?: Record<string, string[]>;
+    };
+    return (
+      details.message ||
+      Object.values(details.errors ?? {})[0]?.[0] ||
+      "Add-on request failed."
+    );
   }
 
   return error instanceof Error ? error.message : "Add-on request failed.";
 }
-

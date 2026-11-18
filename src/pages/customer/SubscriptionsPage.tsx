@@ -82,7 +82,7 @@ export function SubscriptionsPage() {
         title="My subscriptions"
         text="Your care plans, elder coverage, included services, invoices, and payment status."
         action={
-          <Link to="/plans" className="button-outline group">
+          <Link to="/plans" className="button-outline group cursor-pointer">
             Explore plans
             <ArrowUpRight
               size={16}
@@ -463,7 +463,7 @@ function SubscriptionCard({
 
         <div className="flex flex-wrap items-center gap-2">
           {statusSlug === "active" && (
-            <ActionPill disabled={!!busy} loading={busy === "pause"} onClick={() => runAction("pause")}>
+            <ActionPill disabled={!!busy} loading={busy === "pause"}  onClick={() => runAction("pause")}>
               Pause
             </ActionPill>
           )}
@@ -484,7 +484,7 @@ function SubscriptionCard({
           <ActionPill disabled={!!busy} loading={busy === "renew"} onClick={runRenew}>
             Renew
           </ActionPill>
-          <Link to="/contact?interest=Subscription%20question" className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-primary bg-primary px-4 text-xs font-semibold text-white transition-colors hover:bg-brand-900">
+          <Link to="/contact?interest=Subscription%20question" className="group inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-primary bg-primary px-4 text-xs font-semibold text-white transition-colors hover:bg-brand-900">
             Ask
             <ArrowUpRight
               size={16}
@@ -492,7 +492,7 @@ function SubscriptionCard({
               aria-hidden="true"
             />
           </Link>
-          {statusSlug === 'active' && subscription.payment_status === 'Paid' && <Link to={`/customer/add-ons?subscription=${subscription.id}`} className="text-link">Extra care <ArrowUpRight size={15} /></Link>}
+          {statusSlug === 'active' && subscription.payment_status === 'Paid' && <Link to={`/customer/add-ons?subscription=${subscription.id}`} className="text-link cursor-pointer">Extra care <ArrowUpRight size={15} /></Link>}
         </div>
       </div>
 
@@ -604,11 +604,11 @@ function ActionPill({
       disabled={disabled}
       onClick={onClick}
       className={
-        "inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-xs font-semibold transition-colors disabled:cursor-wait disabled:opacity-60 " +
-        (tone === "danger"
-          ? "border border-rose-100 bg-rose-50 text-rose-700 hover:bg-rose-100"
-          : "border border-brand-100 bg-white text-primary hover:border-primary hover:bg-brand-50")
-      }
+  "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full px-4 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 " +
+  (tone === "danger"
+    ? "border border-rose-100 bg-rose-50 text-rose-700 hover:bg-rose-100"
+    : "border border-brand-100 bg-white text-primary hover:border-primary hover:bg-brand-50")
+}
     >
       {loading && <Loader2 size={14} className="animate-spin" />}
       {children}

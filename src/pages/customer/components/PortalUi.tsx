@@ -349,6 +349,7 @@ export function Modal({
               transition-colors
               hover:bg-brand-50
               hover:text-primary
+              cusror-pointer
             "
           >
             <X
