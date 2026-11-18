@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router-dom";
-import { ArrowUpRight, Info } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { CmsLink } from "@/features/cms/CmsLink";
 import {
   defaultPrivacySections,
