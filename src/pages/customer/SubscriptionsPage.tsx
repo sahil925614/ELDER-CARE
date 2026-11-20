@@ -258,6 +258,9 @@ function SubscriptionCard({
   const [cancelNote, setCancelNote] = useState("");
   const actionPending = useRef(false);
   const statusSlug = subscription.status.slug.toLowerCase();
+  // Until the plan is paid, hide anything that makes it look already bought
+  // (usage counts, renew, pause, auto renew).
+  const isPaid = subscription.payment_status === "Paid";
 
   async function runAction(action: "pause" | "resume" | "cancel") {
     if (actionPending.current || busy) return;
@@ -379,7 +382,7 @@ function SubscriptionCard({
             {subscription.services.length ? (
               subscription.services.map((service) => (
                 <div key={service.id}>
-                  <ServiceUsage service={service} />
+                  <ServiceUsage service={service} showUsage={isPaid} />
                   {service.requires_appointment && statusSlug === 'active' && subscription.payment_status === 'Paid' && (service.is_unlimited || (service.remaining_quantity ?? 0) > 0) && <Link to={`/customer/appointments?subscription=${subscription.id}&service=${service.service_id}`} className="text-link mt-2">Book included visit <ArrowUpRight size={15} /></Link>}
                 </div>
               ))
@@ -405,9 +408,12 @@ function SubscriptionCard({
                 value={subscription.amounts.formatted_final_amount}
               />
             </div>
-            <InfoRow label="Auto renew" value={subscription.auto_renew ? "Enabled" : "Disabled"} />
+            {isPaid && (
+              <InfoRow label="Auto renew" value={subscription.auto_renew ? "Enabled" : "Disabled"} />
+            )}
           </div>
 
+          {isPaid && (
           <fieldset className="mt-5 border-t border-brand-100 pt-4">
             <legend className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
               Auto renew
@@ -439,15 +445,29 @@ function SubscriptionCard({
               Enabled plans are renewed automatically after the current period ends.
             </p>
           </fieldset>
+          )}
         </section>
       </div>
 
       <div className="flex flex-col gap-5 border-t border-brand-100 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <div className="flex items-center gap-3">
           <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-50 text-primary">
-            <Check size={14} strokeWidth={2} aria-hidden="true" />
+            {isPaid ? (
+              <Check size={14} strokeWidth={2} aria-hidden="true" />
+            ) : (
+              <Clock3 size={14} strokeWidth={2} aria-hidden="true" />
+            )}
           </span>
           <div>
+            {!isPaid ? (
+              <>
+                <p className="text-xs font-semibold text-brand-900">Payment pending</p>
+                <p className="mt-0.5 text-[11px] text-slate-400">
+                  This plan starts once the payment is complete.
+                </p>
+              </>
+            ) : (
+            <>
             <p className="text-xs font-semibold text-brand-900">
               {subscription.days_remaining === 0
                 ? "Current period has ended"
@@ -458,11 +478,13 @@ function SubscriptionCard({
             <p className="mt-0.5 text-[11px] text-slate-400">
               Current period ends {subscription.end_date || "when set by admin"}
             </p>
+            </>
+            )}
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {statusSlug === "active" && (
+          {isPaid && statusSlug === "active" && (
             <ActionPill disabled={!!busy} loading={busy === "pause"}  onClick={() => runAction("pause")}>
               Pause
             </ActionPill>
@@ -481,9 +503,11 @@ function SubscriptionCard({
               Cancel
             </ActionPill>
           )}
-          <ActionPill disabled={!!busy} loading={busy === "renew"} onClick={runRenew}>
-            Renew
-          </ActionPill>
+          {isPaid && (
+            <ActionPill disabled={!!busy} loading={busy === "renew"} onClick={runRenew}>
+              Renew
+            </ActionPill>
+          )}
           <Link to="/contact?interest=Subscription%20question" className="group inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-primary bg-primary px-4 text-xs font-semibold text-white transition-colors hover:bg-brand-900">
             Ask
             <ArrowUpRight
@@ -618,8 +642,10 @@ function ActionPill({
 
 function ServiceUsage({
   service,
+  showUsage,
 }: {
   service: CustomerSubscription["services"][number];
+  showUsage: boolean;
 }) {
   const limit = service.is_unlimited
     ? "Unlimited"
@@ -643,11 +669,14 @@ function ServiceUsage({
         <p className="text-xs font-semibold text-primary">
           {service.is_unlimited
             ? "Unlimited"
-            : service.remaining_quantity + " left"}
+            : showUsage
+              ? service.remaining_quantity + " left"
+              : limit + " included"}
         </p>
       </div>
 
-      {!service.is_unlimited && (
+      {/* Usage and period only mean something once the plan is paid. */}
+      {showUsage && !service.is_unlimited && (
         <div className="mt-4">
           <div className="h-2 overflow-hidden rounded-full bg-brand-50">
             <span
@@ -660,7 +689,9 @@ function ServiceUsage({
           </p>
         </div>
       )}
-      <p className="mt-2 text-[11px] text-slate-500">Period: {service.period_start} to {service.period_end}</p>
+      {showUsage && (
+        <p className="mt-2 text-[11px] text-slate-500">Period: {service.period_start} to {service.period_end}</p>
+      )}
     </div>
   );
 }
