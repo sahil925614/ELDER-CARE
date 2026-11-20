@@ -22,6 +22,7 @@ import {
 } from "@/features/auth/customerAuth";
 import type { CustomerElder } from "@/features/auth/customerAuth";
 import { ApiError } from "@/services/api/client";
+import { env } from "@/config/env";
 import { AddressFields } from "./components/AddressFields";
 import { EmptyState, Modal, PageHeading } from "./components/PortalUi";
 
@@ -149,7 +150,7 @@ export function EldersPage() {
               setMessage("");
               setError("");
             }}
-            className="button-primary"
+            className="button-primary cursor-pointer"
           >
             <Plus size={17} aria-hidden="true" />
             Add elder
@@ -236,15 +237,7 @@ export function EldersPage() {
               <div className="p-6">
                 <div className="flex items-start justify-between gap-5">
                   <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-brand-50 text-base font-semibold tracking-wide text-primary transition-colors group-hover:bg-brand-100">
-                    {elder.profile_photo_url ? (
-                      <img
-                        src={elder.profile_photo_url}
-                        alt=""
-                        className="size-full object-cover"
-                      />
-                    ) : (
-                      initials(elder.name)
-                    )}
+                    <ElderPhoto src={elder.profile_photo_url} name={elder.name} />
                   </span>
 
                   <div className="flex items-center gap-2">
@@ -341,6 +334,17 @@ function ElderForm({
   saving: boolean;
 }) {
   const [preview, setPreview] = useState(elder?.profile_photo_url || "");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (!photoFile) {
+      setPreview(elder?.profile_photo_url || "");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(photoFile);
+    setPreview(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [photoFile, elder?.profile_photo_url]);
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
@@ -349,11 +353,7 @@ function ElderForm({
           Photo
           <div className="mt-2 flex items-center gap-4">
             <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-brand-50 text-primary">
-              {preview ? (
-                <img src={preview} alt="" className="size-full object-cover" />
-              ) : (
-                <Camera size={20} aria-hidden="true" />
-              )}
+              <ElderPhoto src={preview} name={elder?.name} />
             </span>
             <input
               name="profile_photo"
@@ -361,8 +361,7 @@ function ElderForm({
               accept="image/png,image/jpeg,image/webp"
               className="portal-input"
               onChange={(event) => {
-                const file = event.currentTarget.files?.[0];
-                if (file) setPreview(URL.createObjectURL(file));
+                setPhotoFile(event.currentTarget.files?.[0] ?? null);
               }}
             />
           </div>
@@ -388,6 +387,7 @@ function ElderForm({
           label="Date of birth"
           type="date"
           value={elder?.date_of_birth}
+          max={todayLocalDate()}
           required
         />
         <Field name="phone" label="Phone" type="tel" value={elder?.phone} required />
@@ -398,7 +398,7 @@ function ElderForm({
           value={elder?.blood_group}
           options={bloodGroups}
         />
-        <Field name="preferred_doctor" label="Preferred doctor" value={elder?.preferred_doctor} />
+        {/* <Field name="preferred_doctor" label="Preferred doctor" value={elder?.preferred_doctor} /> */}
         <AddressFields values={elder ?? undefined} />
         <SelectField
           name="care_type"
@@ -432,12 +432,20 @@ function ElderForm({
         <TextArea name="notes" label="Care notes" value={elder?.notes} />
       </div>
 
-      <button className="button-primary" type="submit" disabled={saving}>
+      <button className="button-primary cursor-pointer" type="submit" disabled={saving}>
         <Check size={16} aria-hidden="true" />
         {saving ? "Saving..." : elder ? "Save elder profile" : "Add elder profile"}
       </button>
     </form>
   );
+}
+
+// Today's date as YYYY-MM-DD in the user's local timezone (toISOString would use UTC).
+function todayLocalDate() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
 }
 
 function Field({
@@ -447,11 +455,13 @@ function Field({
   type = "text",
   required = false,
   wide = false,
+  max,
 }: {
   name: string;
   label: string;
   value?: string | null;
   type?: string;
+  max?: string;
   required?: boolean;
   wide?: boolean;
 }) {
@@ -462,6 +472,7 @@ function Field({
         name={name}
         type={type}
         required={required}
+        max={max}
         defaultValue={value || ""}
         className="portal-input"
       />
@@ -552,6 +563,32 @@ function SmallLine({
         </p>
       </div>
     </div>
+  );
+}
+
+function resolveElderPhotoUrl(value?: string | null) {
+  const source = value?.trim();
+  if (!source) return "";
+  if (/^(https?:|blob:|data:)/i.test(source)) return source;
+  const backend = new URL(env.apiBaseUrl, window.location.origin);
+  return new URL(source, backend.origin + "/").href;
+}
+
+function ElderPhoto({ src, name }: { src?: string | null; name?: string }) {
+  const source = resolveElderPhotoUrl(src);
+  const [failedSource, setFailedSource] = useState("");
+
+  if (!source || failedSource === source) {
+    return name ? <>{initials(name)}</> : <Camera size={20} aria-hidden="true" />;
+  }
+
+  return (
+    <img
+      src={source}
+      alt={name ? `${name}'s profile photo` : "Selected elder photo"}
+      className="size-full object-cover"
+      onError={() => setFailedSource(source)}
+    />
   );
 }
 
