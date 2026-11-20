@@ -394,6 +394,7 @@ function ElderForm({
           label="Date of birth"
           type="date"
           value={elder?.date_of_birth}
+          max={todayLocalDate()}
           required
         />
         <Field name="phone" label="Phone" type="tel" value={elder?.phone} required />
@@ -457,6 +458,14 @@ function ElderForm({
   );
 }
 
+// Today's date as YYYY-MM-DD in the user's local timezone (toISOString would use UTC).
+function todayLocalDate() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
 function Field({
   name,
   label,
@@ -464,11 +473,13 @@ function Field({
   type = "text",
   required = false,
   wide = false,
+  max,
 }: {
   name: string;
   label: string;
   value?: string | null;
   type?: string;
+  max?: string;
   required?: boolean;
   wide?: boolean;
 }) {
@@ -479,6 +490,7 @@ function Field({
         name={name}
         type={type}
         required={required}
+        max={max}
         defaultValue={value || ""}
         className="portal-input"
       />
