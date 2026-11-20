@@ -5,8 +5,14 @@ import { ContentImage } from "./ContentImage";
 import { Link, useOutletContext } from "react-router-dom";
 import { apiRequest } from "@/services/api/client";
 import type { HomePageContent } from "@/features/cms/websitePages";
-import { defaultHomeSections, type HomeService } from "@/features/cms/homeSections";
-import { fetchPlanCatalog, type PlanCatalogItem } from "@/features/plans/planCatalog";
+import {
+  defaultHomeSections,
+  type HomeService,
+} from "@/features/cms/homeSections";
+import {
+  fetchPlanCatalog,
+  type PlanCatalogItem,
+} from "@/features/plans/planCatalog";
 import { getCurrencyPreference } from "@/features/plans/currencyPreference";
 import {
   ArrowUpRight,
@@ -52,34 +58,54 @@ function SectionHeading({
 export function HomeSections() {
   const { homePage } = useOutletContext<{ homePage: HomePageContent | null }>();
   const content = homePage?.sections ?? defaultHomeSections;
-  const careHighlights = content.highlights.items.map((item, index) => ({ ...item, icon: [Heart, UserRound, House, HeartHandshake, ShieldCheck, CalendarCheck][index] || Heart }));
+  const careHighlights = content.highlights.items.map((item, index) => ({
+    ...item,
+    icon:
+      [Heart, UserRound, House, HeartHandshake, ShieldCheck, CalendarCheck][
+        index
+      ] || Heart,
+  }));
   const [services, setServices] = useState<HomeService[]>([]);
   const [servicesLoading, setServicesLoading] = useState(true);
-  const [servicesError, setServicesError] = useState('');
+  const [servicesError, setServicesError] = useState("");
   const [plansLoading, setPlansLoading] = useState(true);
-  const [plansError, setPlansError] = useState('');
+  const [plansError, setPlansError] = useState("");
   const plansTrack = useRef<HTMLDivElement>(null);
   const [centerPlan, setCenterPlan] = useState(1);
   const [dynamicPlans, setDynamicPlans] = useState<PlanCatalogItem[]>([]);
   const [currency, setCurrency] = useState(() => getCurrencyPreference());
-  const addonServices = useMemo(() => Array.from(new Map(dynamicPlans.flatMap((plan) => plan.addon_services.map((service) => [service.id, service] as const))).values()), [dynamicPlans]);
+  const addonServices = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          dynamicPlans.flatMap((plan) =>
+            plan.addon_services.map(
+              (service) => [service.id, service] as const,
+            ),
+          ),
+        ).values(),
+      ),
+    [dynamicPlans],
+  );
   const homePlans = dynamicPlans.slice(0, 3).map((plan, index) => ({
-        name: plan.name,
-        slug: plan.slug,
-        isFeatured: plan.is_featured,
-        number: String(index + 1).padStart(2, "0"),
-        eyebrow: plan.label || plan.code || "Care plan",
-        description: plan.short_description || plan.description || "Ongoing support for your loved one's care needs.",
-        features: (
-          plan.features.length
-            ? plan.features.map((feature) => feature.title)
-            : plan.services.map((service) => service.name)
-        ).slice(0, 3),
-        services: plan.services,
-        price: plan.prices[0]?.formatted_price,
-        duration: plan.prices[0]?.label,
-        priceId: plan.prices[0]?.id,
-      }));
+    name: plan.name,
+    slug: plan.slug,
+    isFeatured: plan.is_featured,
+    number: String(index + 1).padStart(2, "0"),
+    eyebrow: plan.label || plan.code || "Care plan",
+    description:
+      plan.short_description ||
+      plan.description ||
+      "Ongoing support for your loved one's care needs.",
+    features: (plan.features.length
+      ? plan.features.map((feature) => feature.title)
+      : plan.services.map((service) => service.name)
+    ).slice(0, 3),
+    services: plan.services,
+    price: plan.prices[0]?.formatted_price,
+    duration: plan.prices[0]?.label,
+    priceId: plan.prices[0]?.id,
+  }));
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 767px)");
@@ -90,11 +116,12 @@ export function HomeSections() {
         track.scrollLeft = 0;
         return;
       }
-      const cards = track.querySelectorAll<HTMLElement>('article');
+      const cards = track.querySelectorAll<HTMLElement>("article");
       const index = Math.min(1, cards.length - 1);
       const card = cards[index];
       if (card) {
-        track.scrollLeft = card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2;
+        track.scrollLeft =
+          card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2;
         setCenterPlan(index);
       }
     };
@@ -109,15 +136,29 @@ export function HomeSections() {
     const refresh = () => {
       const current = ++revision;
       setPlansLoading(true);
-      setPlansError('');
+      setPlansError("");
       void fetchPlanCatalog(currency)
-        .then((data) => { if (active && current === revision) setDynamicPlans(data.plans); })
-        .catch(() => { if (active && current === revision) { setDynamicPlans([]); setPlansError('Care plans could not be loaded. Please try again later.'); } })
-        .finally(() => { if (active && current === revision) setPlansLoading(false); });
+        .then((data) => {
+          if (active && current === revision) setDynamicPlans(data.plans);
+        })
+        .catch(() => {
+          if (active && current === revision) {
+            setDynamicPlans([]);
+            setPlansError(
+              "Care plans could not be loaded. Please try again later.",
+            );
+          }
+        })
+        .finally(() => {
+          if (active && current === revision) setPlansLoading(false);
+        });
     };
     refresh();
-    window.addEventListener('focus', refresh);
-    return () => { active = false; window.removeEventListener('focus', refresh); };
+    window.addEventListener("focus", refresh);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", refresh);
+    };
   }, [currency]);
 
   useEffect(() => {
@@ -126,21 +167,36 @@ export function HomeSections() {
     const refresh = () => {
       const current = ++revision;
       setServicesLoading(true);
-      setServicesError('');
-      void apiRequest<{ services: HomeService[] }>('website/home-services')
-        .then((data) => { if (active && current === revision) setServices(data?.services ?? []); })
-        .catch(() => { if (active && current === revision) { setServices([]); setServicesError('Services could not be loaded. Please try again later.'); } })
-        .finally(() => { if (active && current === revision) setServicesLoading(false); });
+      setServicesError("");
+      void apiRequest<{ services: HomeService[] }>("website/home-services")
+        .then((data) => {
+          if (active && current === revision) setServices(data?.services ?? []);
+        })
+        .catch(() => {
+          if (active && current === revision) {
+            setServices([]);
+            setServicesError(
+              "Services could not be loaded. Please try again later.",
+            );
+          }
+        })
+        .finally(() => {
+          if (active && current === revision) setServicesLoading(false);
+        });
     };
     refresh();
-    window.addEventListener('focus', refresh);
-    return () => { active = false; window.removeEventListener('focus', refresh); };
+    window.addEventListener("focus", refresh);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", refresh);
+    };
   }, []);
 
   useEffect(() => {
     const syncCurrency = () => setCurrency(getCurrencyPreference());
     window.addEventListener("elder-care-currency-changed", syncCurrency);
-    return () => window.removeEventListener("elder-care-currency-changed", syncCurrency);
+    return () =>
+      window.removeEventListener("elder-care-currency-changed", syncCurrency);
   }, []);
 
   function updateCenterPlan() {
@@ -149,10 +205,15 @@ export function HomeSections() {
     const center = track.scrollLeft + track.clientWidth / 2;
     let closest = 0;
     let distance = Infinity;
-    Array.from(track.querySelectorAll<HTMLElement>('article')).forEach((card, index) => {
-      const next = Math.abs(card.offsetLeft + card.offsetWidth / 2 - center);
-      if (next < distance) { distance = next; closest = index; }
-    });
+    Array.from(track.querySelectorAll<HTMLElement>("article")).forEach(
+      (card, index) => {
+        const next = Math.abs(card.offsetLeft + card.offsetWidth / 2 - center);
+        if (next < distance) {
+          distance = next;
+          closest = index;
+        }
+      },
+    );
     setCenterPlan(closest);
   }
 
@@ -210,81 +271,88 @@ export function HomeSections() {
         <div className="page-container">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div className="max-w-xl">
-              <SectionHeading
-                {...content.services}
-              />
+              <SectionHeading {...content.services} />
             </div>
             <Link to={content.services.button_url} className="text-link">
               {content.services.button_label} <ArrowUpRight size={18} />
             </Link>
           </div>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {(servicesLoading || servicesError || !services.length) && <p role="status" className="text-sm text-slate-600">{servicesLoading ? 'Loading services...' : servicesError || 'No services are currently available.'}</p>}
+            {(servicesLoading || servicesError || !services.length) && (
+              <p role="status" className="text-sm text-slate-600">
+                {servicesLoading
+                  ? "Loading services..."
+                  : servicesError || "No services are currently available."}
+              </p>
+            )}
             {services.map((service, index) => {
-              const Icon = [Stethoscope, HeartHandshake, Activity, House][index % 4];
+              const Icon = [Stethoscope, HeartHandshake, Activity, House][
+                index % 4
+              ];
               return (
-              <Link
-                key={service.id}
-                to={service.url}
-                aria-label={`Explore ${service.name}`}
-                className="group relative flex min-h-full flex-col overflow-hidden rounded-[24px] border border-brand-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-[0_18px_45px_rgba(20,127,121,0.10)]"
-              >
-                {/* =========================
+                <Link
+                  key={service.id}
+                  to={service.url}
+                  aria-label={`Explore ${service.name}`}
+                  className="group relative flex min-h-full flex-col overflow-hidden rounded-[24px] border border-brand-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-[0_18px_45px_rgba(20,127,121,0.10)]"
+                >
+                  {/* =========================
           IMAGE
       ========================== */}
-                <div className="relative h-[205px] overflow-hidden">
-                  <ContentImage
-                    key={service.image_url}
-                    name={service.name}
-                    src={service.image_url}
-                    alt={service.name}
-                    className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                  />
+                  <div className="relative h-[205px] overflow-hidden">
+                    <ContentImage
+                      key={service.image_url}
+                      name={service.name}
+                      src={service.image_url}
+                      alt={service.name}
+                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                    />
 
-                  {/* subtle gradient */}
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-900/10 via-transparent to-transparent"
-                  />
-                </div>
+                    {/* subtle gradient */}
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-900/10 via-transparent to-transparent"
+                    />
+                  </div>
 
-                {/* =========================
+                  {/* =========================
           ICON
       ========================== */}
-                <div className="relative z-10 -mt-7 px-6">
-                  <span className="grid size-14 place-items-center rounded-2xl border-[5px] border-white bg-brand-50 text-primary shadow-sm transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
-                    <Icon size={23} strokeWidth={1.5} aria-hidden="true" />
-                  </span>
-                </div>
-
-                {/* =========================
-          CONTENT
-      ========================== */}
-                <div className="flex flex-1 flex-col px-6 pb-6 pt-4">
-                  <h3 className="text-lg font-semibold tracking-[-0.01em] text-brand-900 transition-colors group-hover:text-primary">
-                    {service.name}
-                  </h3>
-
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                    {service.text}
-                  </p>
-
-                  {/* pushes CTA to bottom */}
-                  <div className="mt-auto pt-6">
-                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                      {content.services.item_label}
-                      <span className="grid size-7 place-items-center rounded-full bg-brand-50 transition-all duration-300 group-hover:bg-primary group-hover:text-white">
-                        <ArrowUpRight
-                          size={14}
-                          strokeWidth={1.8}
-                          aria-hidden="true"
-                        />
-                      </span>
+                  <div className="relative z-10 -mt-7 px-6">
+                    <span className="grid size-14 place-items-center rounded-2xl border-[5px] border-white bg-brand-50 text-primary shadow-sm transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
+                      <Icon size={23} strokeWidth={1.5} aria-hidden="true" />
                     </span>
                   </div>
-                </div>
-              </Link>
-            ); })}
+
+                  {/* =========================
+          CONTENT
+      ========================== */}
+                  <div className="flex flex-1 flex-col px-6 pb-6 pt-4">
+                    <h3 className="text-lg font-semibold tracking-[-0.01em] text-brand-900 transition-colors group-hover:text-primary">
+                      {service.name}
+                    </h3>
+
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      {service.text}
+                    </p>
+
+                    {/* pushes CTA to bottom */}
+                    <div className="mt-auto pt-6">
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                        {content.services.item_label}
+                        <span className="grid size-7 place-items-center rounded-full bg-brand-50 transition-all duration-300 group-hover:bg-primary group-hover:text-white">
+                          <ArrowUpRight
+                            size={14}
+                            strokeWidth={1.8}
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -313,7 +381,13 @@ export function HomeSections() {
                   src={content.approach.image_url || elderCare}
                   loading="lazy"
                   alt={content.approach.image_alt}
-                  onError={(event) => { if (event.currentTarget.src !== new URL(elderCare, window.location.href).href) event.currentTarget.src = elderCare; }}
+                  onError={(event) => {
+                    if (
+                      event.currentTarget.src !==
+                      new URL(elderCare, window.location.href).href
+                    )
+                      event.currentTarget.src = elderCare;
+                  }}
                   className="aspect-[5/4] w-full object-cover object-[80%_center] transition-transform duration-700 hover:scale-[1.02]"
                 />
 
@@ -358,9 +432,7 @@ export function HomeSections() {
           RIGHT — CONTENT
       =================================================== */}
             <div className="lg:pl-3">
-              <SectionHeading
-                {...content.approach}
-              />
+              <SectionHeading {...content.approach} />
 
               {/* ==================================================
             BENEFITS
@@ -422,7 +494,10 @@ export function HomeSections() {
             CTA
         =================================================== */}
               <div className="mt-8 flex flex-wrap items-center gap-6">
-                <Link to={content.approach.button_url} className="button-primary group">
+                <Link
+                  to={content.approach.button_url}
+                  className="button-primary group"
+                >
                   {content.approach.button_label}
                   <ArrowUpRight
                     size={17}
@@ -634,14 +709,9 @@ export function HomeSections() {
 
       <section className="section-space bg-brand-50">
         <div className="page-container">
-          {/* =========================
-        SECTION HEADING
-    ========================== */}
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-xl">
-              <SectionHeading
-                {...content.plans}
-              />
+              <SectionHeading {...content.plans} />
             </div>
 
             <Link
@@ -657,10 +727,25 @@ export function HomeSections() {
             </Link>
           </div>
 
-        
           <div className="home-plans-panel mt-12 overflow-hidden rounded-[28px] border border-brand-100 bg-white">
-            <div ref={plansTrack} onScroll={updateCenterPlan} className="home-plans-track grid lg:grid-cols-3" role="region" aria-label="Care plans" tabIndex={0}>
-              {(plansLoading || plansError || !homePlans.length) && <p role="status" className="p-7 text-sm text-slate-600 lg:col-span-3">{plansLoading ? 'Loading care plans...' : plansError || 'No care plans are currently available.'}</p>}
+            <div
+              ref={plansTrack}
+              onScroll={updateCenterPlan}
+              className="home-plans-track grid lg:grid-cols-3"
+              role="region"
+              aria-label="Care plans"
+              tabIndex={0}
+            >
+              {(plansLoading || plansError || !homePlans.length) && (
+                <p
+                  role="status"
+                  className="p-7 text-sm text-slate-600 lg:col-span-3"
+                >
+                  {plansLoading
+                    ? "Loading care plans..."
+                    : plansError || "No care plans are currently available."}
+                </p>
+              )}
               {homePlans.map((plan, index) => (
                 <article
                   key={plan.name}
@@ -673,10 +758,6 @@ export function HomeSections() {
                       : "")
                   }
                 >
-                  {/* =====================
-                TOP
-            ====================== */}
-
                   <div className="flex items-start justify-between gap-5">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
@@ -692,10 +773,6 @@ export function HomeSections() {
                       {plan.number}
                     </span>
                   </div>
-
-                  {/* =====================
-                DESCRIPTION
-            ====================== */}
 
                   <p className="home-plan-description mt-5 text-sm leading-6 text-slate-600">
                     {plan.description}
@@ -713,37 +790,38 @@ export function HomeSections() {
                     </p>
                   </div>
 
-                  {/* =====================
-                DIVIDER
-            ====================== */}
-
                   <div className="home-plan-divider my-5 h-px bg-brand-100" />
-
-                  {/* =====================
-                FEATURES
-            ====================== */}
 
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-900">
                     {content.plans.services_label}
                   </p>
 
                   <ul className="home-plan-services mt-3 space-y-2.5">
-                    {(plan.services.length ? plan.services : plan.features.map((feature) => ({
-                      name: feature,
-                      is_unlimited: false,
-                      quantity: null,
-                      usage_period: null,
-                    }))).map((service) => (
+                    {(plan.services.length
+                      ? plan.services
+                      : plan.features.map((feature) => ({
+                          name: feature,
+                          is_unlimited: false,
+                          quantity: null,
+                          usage_period: null,
+                        }))
+                    ).map((service) => (
                       <li
                         key={service.name}
                         className="rounded-2xl border border-brand-100 bg-white px-3 py-2.5 text-sm text-slate-600"
                       >
                         <div className="flex items-start gap-3">
                           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-50 text-primary">
-                            <Check size={13} strokeWidth={2} aria-hidden="true" />
+                            <Check
+                              size={13}
+                              strokeWidth={2}
+                              aria-hidden="true"
+                            />
                           </span>
                           <div>
-                            <p className="font-semibold text-brand-900">{service.name}</p>
+                            <p className="font-semibold text-brand-900">
+                              {service.name}
+                            </p>
                             <p className="mt-1 text-[11px] text-slate-400">
                               {service.is_unlimited
                                 ? "Unlimited"
@@ -751,7 +829,8 @@ export function HomeSections() {
                                   ? service.quantity + " included"
                                   : "Included"}
                               {service.usage_period
-                                ? " per " + service.usage_period.replace(/_/g, " ")
+                                ? " per " +
+                                  service.usage_period.replace(/_/g, " ")
                                 : ""}
                             </p>
                           </div>
@@ -778,16 +857,15 @@ export function HomeSections() {
                     </div>
                   )}
 
-                  {/* =====================
-                CTA
-            ====================== */}
-
                   <div className="home-plan-action mt-auto pt-6">
                     <Link
-                      to={plan.priceId ?
-                        "/customer/checkout?plan=" +
-                        encodeURIComponent(plan.slug) +
-                        "&price=" + plan.priceId : content.plans.button_url
+                      to={
+                        plan.priceId
+                          ? "/customer/checkout?plan=" +
+                            encodeURIComponent(plan.slug) +
+                            "&price=" +
+                            plan.priceId
+                          : content.plans.button_url
                       }
                       aria-label={`Choose ${plan.name} plan`}
                       className="group/button flex items-center justify-between border-t border-brand-100 pt-5 text-sm font-semibold text-primary"
@@ -805,10 +883,6 @@ export function HomeSections() {
                 </article>
               ))}
             </div>
-
-            {/* =========================
-          BOTTOM INFORMATION BAR
-      ========================== */}
 
             <div className="flex flex-col gap-5 border-t border-brand-100 bg-brand-50/60 px-7 py-6 sm:px-9 lg:flex-row lg:items-center lg:justify-between lg:px-10">
               <div className="flex items-start gap-3">
@@ -843,106 +917,100 @@ export function HomeSections() {
         </div>
       </section>
 
-      {/* <section className="section-space">
-        <div className="page-container grid gap-12 lg:grid-cols-[1fr_1.15fr]">
-          <div>
-            <SectionHeading
-              label="Additional support"
-              title="A little extra care, when it matters."
-              text="Explore services beyond your main subscription. Availability and pricing are confirmed for each service."
-            />
-            <Link to="/add-ons" className="button-outline mt-8">
-              Discover add-on services <ArrowUpRight size={18} />
-            </Link>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              { icon: FlaskConical, title: "Lab tests" },
-              { icon: Pill, title: "Medicine delivery" },
-              { icon: Activity, title: "Physiotherapy" },
-              { icon: Stethoscope, title: "Doctor visits" },
-            ].map(({ icon: Icon, title }) => (
-              <Link
-                key={title}
-                to="/add-ons"
-                className="flex items-center gap-4 rounded-2xl border border-brand-100 p-6 text-brand-900 hover:bg-brand-50"
-              >
-                <Icon
-                  className="shrink-0 text-brand-700"
-                  size={25}
-                  strokeWidth={1.5}
-                  aria-hidden="true"
-                />
-                <span className="font-semibold">{title}</span>
-                <ArrowUpRight
-                  size={16}
-                  className="ml-auto shrink-0"
-                  aria-hidden="true"
-                />
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
       <section className="section-space">
         <div className="page-container">
           <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-20">
             <div>
-              <SectionHeading
-                {...content.addons}
-              />
+              <SectionHeading {...content.addons} />
 
-              <Link to={content.addons.button_url} className="button-outline mt-8">
+              <Link
+                to={content.addons.button_url}
+                className="button-outline mt-8"
+              >
                 {content.addons.button_label}
                 <ArrowUpRight size={18} aria-hidden="true" />
               </Link>
             </div>
 
-            <AddOnServiceSlider services={addonServices} loading={plansLoading} error={plansError} />
+            <AddOnServiceSlider
+              services={addonServices}
+              loading={plansLoading}
+              error={plansError}
+            />
           </div>
         </div>
       </section>
 
-      <section className="page-container" aria-labelledby="home-account-heading">
+      <section
+        className="page-container"
+        aria-labelledby="home-account-heading"
+      >
         <div className="overflow-hidden rounded-3xl border border-brand-100 bg-brand-50 sm:rounded-[28px]">
           <div className="grid lg:grid-cols-2">
             <div className="flex min-w-0 flex-col justify-center px-5 py-7 sm:p-9 lg:p-12">
               <div className="flex items-center gap-3">
                 <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-primary">
-                  <HeartHandshake size={22} strokeWidth={1.5} aria-hidden="true" />
+                  <HeartHandshake
+                    size={22}
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  />
                 </span>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary sm:text-[11px]">
                   {content.account.label}
                 </p>
               </div>
-              <h2 id="home-account-heading" className="mt-5 max-w-md text-[26px] font-semibold leading-tight tracking-tight text-brand-900 sm:text-3xl lg:text-4xl">
-                {content.account.title_line_1}<br className="hidden sm:block" />{' '}{content.account.title_line_2}
+              <h2
+                id="home-account-heading"
+                className="mt-5 max-w-md text-[26px] font-semibold leading-tight tracking-tight text-brand-900 sm:text-3xl lg:text-4xl"
+              >
+                {content.account.title_line_1}
+                <br className="hidden sm:block" />{" "}
+                {content.account.title_line_2}
               </h2>
               <p className="mt-4 max-w-md text-sm leading-7 text-slate-600">
                 {content.account.text}
               </p>
               <div className="mt-6 border-t border-brand-200 pt-5 sm:mt-8">
-                <p className="text-sm font-semibold text-brand-900">{content.account.button_note}</p>
-                <Link to={content.account.button_url} className="group mt-3 inline-flex w-full items-center justify-between gap-4 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-brand-900 sm:w-auto">
+                <p className="text-sm font-semibold text-brand-900">
+                  {content.account.button_note}
+                </p>
+                <Link
+                  to={content.account.button_url}
+                  className="group mt-3 inline-flex w-full items-center justify-between gap-4 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-brand-900 sm:w-auto"
+                >
                   {content.account.button_label}
-                  <ArrowUpRight size={17} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+                  <ArrowUpRight
+                    size={17}
+                    className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
                 </Link>
               </div>
             </div>
             <div className="min-w-0 border-t border-brand-100 bg-white/60 px-5 py-6 sm:p-9 lg:flex lg:items-center lg:border-l lg:border-t-0 lg:p-10">
               <div className="grid w-full grid-cols-2 gap-3 sm:gap-4">
                 {content.account.items.map(({ title, text }, index) => {
-                  const Icon = [UserRound, Layers, CalendarDays, CreditCard][index % 4];
+                  const Icon = [UserRound, Layers, CalendarDays, CreditCard][
+                    index % 4
+                  ];
                   return (
-                  <div key={index} className="min-w-0 rounded-2xl border border-brand-100 bg-white p-3.5 sm:p-5">
-                    <span className="grid size-9 place-items-center rounded-xl bg-brand-50 text-primary sm:size-10">
-                      <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
-                    </span>
-                    <h3 className="mt-4 break-words text-xs font-semibold text-brand-900 sm:text-sm">{title}</h3>
-                    <p className="mt-2 text-xs leading-5 text-slate-500">{text}</p>
-                  </div>
-                ); })}
+                    <div
+                      key={index}
+                      className="min-w-0 rounded-2xl border border-brand-100 bg-white p-3.5 sm:p-5"
+                    >
+                      <span className="grid size-9 place-items-center rounded-xl bg-brand-50 text-primary sm:size-10">
+                        <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
+                      </span>
+                      <h3 className="mt-4 break-words text-xs font-semibold text-brand-900 sm:text-sm">
+                        {title}
+                      </h3>
+                      <p className="mt-2 text-xs leading-5 text-slate-500">
+                        {text}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -952,9 +1020,7 @@ export function HomeSections() {
       <section className="section-space">
         <div className="page-container grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
-            <SectionHeading
-              {...content.faqs}
-            />
+            <SectionHeading {...content.faqs} />
             <Link to={content.faqs.button_url} className="text-link mt-6">
               {content.faqs.button_label} <ArrowUpRight size={18} />
             </Link>
@@ -1079,8 +1145,6 @@ export function HomeSections() {
           </div>
         </div>
       </section>
-
-      
     </div>
   );
 }

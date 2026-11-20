@@ -361,7 +361,7 @@ export function Modal({
 
         {/* CONTENT */}
 
-        <div className="max-h-[min(72vh,650px)] overflow-y-auto p-5 sm:p-6">
+        <div className="max-h-[min(72vh,650px)] overflow-y-auto px-5 pb-5 pt-5 sm:px-6 sm:pb-6 sm:pt-6">
           {children}
         </div>
       </div>
