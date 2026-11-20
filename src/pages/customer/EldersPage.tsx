@@ -23,6 +23,7 @@ import {
 import type { CustomerElder } from "@/features/auth/customerAuth";
 import { ApiError } from "@/services/api/client";
 import { env } from "@/config/env";
+import { AddressFields } from "./components/AddressFields";
 import { EmptyState, Modal, PageHeading } from "./components/PortalUi";
 
 const genders = ["Male", "Female", "Other"];
@@ -46,13 +47,6 @@ const careTypes = [
   "Physiotherapy",
   "Companionship",
   "Other",
-];
-const mobilityLevels = [
-  "Independent",
-  "Needs Assistance",
-  "Walker",
-  "Wheelchair",
-  "Bedridden",
 ];
 
 export function EldersPage() {
@@ -88,7 +82,6 @@ export function EldersPage() {
           elder.relationship,
           elder.city,
           elder.care_type,
-          elder.mobility_level,
         ]
           .join(" ")
           .toLowerCase()
@@ -279,7 +272,7 @@ export function EldersPage() {
                     {elder.name}
                   </h2>
                   <p className="mt-1.5 text-sm text-slate-500">
-                    {elder.care_type} | {elder.mobility_level}
+                    {elder.care_type}
                   </p>
                 </div>
               </div>
@@ -394,6 +387,7 @@ function ElderForm({
           label="Date of birth"
           type="date"
           value={elder?.date_of_birth}
+          max={todayLocalDate()}
           required
         />
         <Field name="phone" label="Phone" type="tel" value={elder?.phone} required />
@@ -405,23 +399,12 @@ function ElderForm({
           options={bloodGroups}
         />
         {/* <Field name="preferred_doctor" label="Preferred doctor" value={elder?.preferred_doctor} /> */}
-        <Field name="address" label="Address" value={elder?.address} required wide />
-        <Field name="city" label="City" value={elder?.city} required />
-        <Field name="state" label="State" value={elder?.state} />
-        <Field name="country" label="Country" value={elder?.country || "India"} required />
-        <Field name="zip_code" label="Zip code" value={elder?.zip_code} />
+        <AddressFields values={elder ?? undefined} />
         <SelectField
           name="care_type"
           label="Care type"
           value={elder?.care_type}
           options={careTypes}
-          required
-        />
-        <SelectField
-          name="mobility_level"
-          label="Mobility level"
-          value={elder?.mobility_level}
-          options={mobilityLevels}
           required
         />
         <Field
@@ -457,6 +440,14 @@ function ElderForm({
   );
 }
 
+// Today's date as YYYY-MM-DD in the user's local timezone (toISOString would use UTC).
+function todayLocalDate() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
 function Field({
   name,
   label,
@@ -464,11 +455,13 @@ function Field({
   type = "text",
   required = false,
   wide = false,
+  max,
 }: {
   name: string;
   label: string;
   value?: string | null;
   type?: string;
+  max?: string;
   required?: boolean;
   wide?: boolean;
 }) {
@@ -479,6 +472,7 @@ function Field({
         name={name}
         type={type}
         required={required}
+        max={max}
         defaultValue={value || ""}
         className="portal-input"
       />

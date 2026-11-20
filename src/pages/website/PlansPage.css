@@ -51,8 +51,23 @@
     transition: none;
   }
 }
+/* "Most popular" pill sitting on the featured card's top border, centred. */
+.plans-catalogue-card[data-featured="true"] {
+  overflow: visible;
+}
 .plans-catalogue-badge {
-  padding-block: 7px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  translate: -50% -50%;
+  padding: 6px 16px;
+  border: 1.5px solid var(--primary-color, #147f79);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--primary-color, #147f79);
+  box-shadow: 0 6px 16px rgb(20 127 121 / 14%);
+  white-space: nowrap;
 }
 .plans-catalogue-header {
   padding: 22px 24px 16px;
@@ -142,4 +157,42 @@
 }
 .plans-catalogue-duration p + p {
   margin-top: 0;
+}
+
+/* Layout for plan counts other than 3 (cards come from the backend). */
+@media (min-width: 1024px) {
+  .plans-catalogue:is([data-count="2"], [data-count="4"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .plans-catalogue[data-count="1"] {
+    grid-template-columns: minmax(0, 420px);
+    justify-content: center;
+  }
+}
+@media (min-width: 1280px) {
+  .plans-catalogue[data-count="4"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .plans-catalogue[data-count="4"] .plans-catalogue-header {
+    padding-inline: 20px;
+  }
+  .plans-catalogue[data-count="4"] .plans-catalogue-body {
+    padding-inline: 20px;
+  }
+  .plans-catalogue[data-count="4"] .plans-catalogue-header + div {
+    margin-inline: 20px;
+  }
+  /* Narrower cards: keep large prices on one line. */
+  .plans-catalogue[data-count="4"] .plans-catalogue-price > p:nth-child(2) {
+    font-size: 21px;
+  }
+}
+
+/* Mobile slider: leave room above the cards for the "Most popular" pill,
+   which would otherwise be clipped by the scrolling track. */
+@media (max-width: 767px) {
+  .plans-catalogue {
+    padding-top: 16px;
+  }
 }

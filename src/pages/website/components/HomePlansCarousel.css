@@ -10,8 +10,10 @@
 .home-dynamic-content a > svg {
   flex-shrink: 0;
 }
+/* Stretch so every card in a row has the same height; the "Choose" button
+   sits at the bottom of each card (mt-auto). */
 .home-plans-track {
-  align-items: start;
+  align-items: stretch;
 }
 .home-plans-track > .home-plan-card {
   min-width: 0;
@@ -74,9 +76,11 @@
 .home-plan-services > li p + p {
   margin-top: 2px;
 }
+/* margin-top: auto keeps the "Choose" button at the bottom of every card so
+   the buttons line up across a row. */
 .home-plan-action {
-  margin-top: 16px;
-  padding-top: 0;
+  margin-top: auto;
+  padding-top: 16px;
 }
 .home-plan-action > a {
   padding: 10px 14px;
@@ -115,10 +119,31 @@
     border-radius: 24px;
     background: white;
   }
+  /* 2 or 4 plans: two per row on tablets so cards don't get too narrow. */
+  .home-plans-track:is([data-count="2"], [data-count="4"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .home-plans-track[data-count="1"] {
+    grid-template-columns: minmax(0, 420px);
+    justify-content: center;
+  }
   .home-plans-panel > .home-plans-track + div {
     margin-top: 20px;
     border: 1px solid var(--theme-light);
     border-radius: 20px;
+  }
+}
+/* 4 plans fit in one row on wide screens. */
+@media (min-width: 1280px) {
+  .home-plans-track[data-count="4"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .home-plans-track[data-count="4"] > .home-plan-card {
+    padding: 20px;
+  }
+  /* Narrower cards: keep large prices on one line. */
+  .home-plans-track[data-count="4"] .home-plan-price > p:nth-child(2) {
+    font-size: 20px;
   }
 }
 /* Preserve the homepage plan carousel on mobile. */
@@ -192,4 +217,7 @@
   background: white;
   border-color: white;
   color: var(--primary-color);
+}
+.home-plan-card[data-featured="true"] .home-plan-toggle {
+  color: white;
 }
