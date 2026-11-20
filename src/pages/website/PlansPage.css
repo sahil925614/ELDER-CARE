@@ -143,3 +143,33 @@
 .plans-catalogue-duration p + p {
   margin-top: 0;
 }
+
+/* Layout for plan counts other than 3 (cards come from the backend). */
+@media (min-width: 1024px) {
+  .plans-catalogue:is([data-count="2"], [data-count="4"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .plans-catalogue[data-count="1"] {
+    grid-template-columns: minmax(0, 420px);
+    justify-content: center;
+  }
+}
+@media (min-width: 1280px) {
+  .plans-catalogue[data-count="4"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .plans-catalogue[data-count="4"] .plans-catalogue-header {
+    padding-inline: 20px;
+  }
+  .plans-catalogue[data-count="4"] .plans-catalogue-body {
+    padding-inline: 20px;
+  }
+  .plans-catalogue[data-count="4"] .plans-catalogue-header + div {
+    margin-inline: 20px;
+  }
+  /* Narrower cards: keep large prices on one line. */
+  .plans-catalogue[data-count="4"] .plans-catalogue-price > p:nth-child(2) {
+    font-size: 21px;
+  }
+}

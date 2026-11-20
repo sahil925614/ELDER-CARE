@@ -12,6 +12,7 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
+  ChevronDown,
   HeartHandshake,
   ListChecks,
   MessageCircle,
@@ -22,12 +23,17 @@ import {
 import { PageHero, PageCta, PageFaq } from "./components/PageSections";
 import './PlansPage.css';
 
+// Cards show this many services until "Show more" is clicked, so they stay
+// the same height. Matches the home page plans section.
+const VISIBLE_PLAN_SERVICES = 4;
+
 export function PlansPage() {
   const { plansPage } = useOutletContext<{ plansPage: PlansPageContent | null }>();
   const sections = plansPage?.sections ?? defaultPlansSections;
   const [preferredDuration, setDuration] = useState<number | null>(null);
   const [currency, setCurrency] = useState(() => getCurrencyPreference());
   const [centerPlan, setCenterPlan] = useState(0);
+  const [expandedPlans, setExpandedPlans] = useState<Record<number, boolean>>({});
   const { plans, loading, error, retry } = usePlansCatalogue(currency);
 
   useEffect(() => {
@@ -142,7 +148,8 @@ export function PlansPage() {
         )}
 
         <div
-          className="plans-catalogue mt-10 grid items-start gap-6 lg:grid-cols-3"
+          className="plans-catalogue mt-10 grid items-stretch gap-6 lg:grid-cols-3"
+          data-count={plans.length}
           role="region"
           aria-label="Care plans"
           tabIndex={0}
@@ -168,6 +175,11 @@ export function PlansPage() {
               plan.prices.find((price) => price.duration_months === duration) ??
               plan.prices[0];
             const features = plan.features.map((feature) => feature.title).slice(0, 4);
+            const isExpanded = !!expandedPlans[plan.id];
+            const hiddenCount = Math.max(plan.services.length - VISIBLE_PLAN_SERVICES, 0);
+            const visibleServices = isExpanded
+              ? plan.services
+              : plan.services.slice(0, VISIBLE_PLAN_SERVICES);
 
             return (
               <article
@@ -288,8 +300,11 @@ export function PlansPage() {
                     {sections.catalogue.services_label}
                   </p>
 
-                  <ul className="plans-catalogue-services mt-3 space-y-2.5">
-                    {plan.services.map((service) => (
+                  <ul
+                    id={"plan-services-" + plan.id}
+                    className="plans-catalogue-services mt-3 space-y-2.5"
+                  >
+                    {visibleServices.map((service) => (
                       <li
                         key={service.id || service.name}
                         className={
@@ -336,6 +351,33 @@ export function PlansPage() {
                     ))}
                   </ul>
 
+                  {hiddenCount > 0 && (
+                    <button
+                      type="button"
+                      aria-expanded={isExpanded}
+                      aria-controls={"plan-services-" + plan.id}
+                      onClick={() =>
+                        setExpandedPlans((current) => ({
+                          ...current,
+                          [plan.id]: !current[plan.id],
+                        }))
+                      }
+                      className={
+                        "mt-2 inline-flex w-fit items-center gap-1 text-xs font-semibold " +
+                        (isPopular ? "text-white" : "text-primary")
+                      }
+                    >
+                      {isExpanded
+                        ? "Show less"
+                        : `Show ${hiddenCount} more service${hiddenCount > 1 ? "s" : ""}`}
+                      <ChevronDown
+                        size={14}
+                        aria-hidden="true"
+                        className={"transition-transform " + (isExpanded ? "rotate-180" : "")}
+                      />
+                    </button>
+                  )}
+
                   {features.length > 0 && (
                     <div
                       className={
@@ -368,6 +410,10 @@ export function PlansPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Pushes the duration + button to the bottom so they line up
+                      across cards of different content lengths. */}
+                  <div className="mt-auto" aria-hidden="true" />
 
                   {/* DURATION */}
 
