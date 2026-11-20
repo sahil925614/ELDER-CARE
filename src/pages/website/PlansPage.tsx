@@ -185,6 +185,7 @@ export function PlansPage() {
               <article
                 key={plan.id}
                 data-centered={centerPlan === index}
+                data-featured={isPopular}
                 className={
                   "plans-catalogue-card relative flex flex-col overflow-hidden rounded-[28px] border transition-all duration-300 " +
                   (isPopular

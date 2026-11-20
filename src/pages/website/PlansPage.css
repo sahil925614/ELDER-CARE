@@ -52,7 +52,12 @@
   }
 }
 .plans-catalogue-badge {
-  padding-block: 7px;
+  --plans-badge-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--plans-badge-height);
+  padding-block: 0;
 }
 .plans-catalogue-header {
   padding: 22px 24px 16px;
@@ -171,5 +176,22 @@
   /* Narrower cards: keep large prices on one line. */
   .plans-catalogue[data-count="4"] .plans-catalogue-price > p:nth-child(2) {
     font-size: 21px;
+  }
+}
+
+/* Desktop: the "Most popular" bar sits above the row instead of pushing the
+   featured card's content down. Otherwise the other cards stretch to the
+   taller featured card and show an empty gap above their duration row. */
+@media (min-width: 1024px) {
+  .plans-catalogue:has(> [data-featured="true"]) {
+    margin-top: 70px;
+  }
+  .plans-catalogue > .plans-catalogue-card[data-featured="true"] {
+    margin-top: -30px;
+  }
+  /* Two rows (4 plans on tablets/small laptops): leave room for the bar
+     when the featured card is in the second row. */
+  .plans-catalogue[data-count="4"] {
+    row-gap: 48px;
   }
 }
