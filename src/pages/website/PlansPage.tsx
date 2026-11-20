@@ -196,8 +196,8 @@ export function PlansPage() {
                 {/* POPULAR LABEL */}
 
                 {isPopular && (
-                  <div className="plans-catalogue-badge border-b border-white/15 bg-white/[0.08] px-7 py-2.5 text-center">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white">
+                  <div className="plans-catalogue-badge">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em]">
                       {sections.catalogue.popular_label}
                     </p>
                   </div>

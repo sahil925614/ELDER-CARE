@@ -51,13 +51,22 @@
     transition: none;
   }
 }
+/* "Most popular" pill sitting on the featured card's top border, centred. */
+.plans-catalogue-card[data-featured="true"] {
+  overflow: visible;
+}
 .plans-catalogue-badge {
-  --plans-badge-height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--plans-badge-height);
-  padding-block: 0;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  translate: -50% -50%;
+  padding: 6px 16px;
+  border: 2px solid var(--primary-color, #147f79);
+  border-radius: 999px;
+  background: #ffc83d;
+  color: #10302d;
+  white-space: nowrap;
 }
 .plans-catalogue-header {
   padding: 22px 24px 16px;
@@ -179,19 +188,10 @@
   }
 }
 
-/* Desktop: the "Most popular" bar sits above the row instead of pushing the
-   featured card's content down. Otherwise the other cards stretch to the
-   taller featured card and show an empty gap above their duration row. */
-@media (min-width: 1024px) {
-  .plans-catalogue:has(> [data-featured="true"]) {
-    margin-top: 70px;
-  }
-  .plans-catalogue > .plans-catalogue-card[data-featured="true"] {
-    margin-top: -30px;
-  }
-  /* Two rows (4 plans on tablets/small laptops): leave room for the bar
-     when the featured card is in the second row. */
-  .plans-catalogue[data-count="4"] {
-    row-gap: 48px;
+/* Mobile slider: leave room above the cards for the "Most popular" pill,
+   which would otherwise be clipped by the scrolling track. */
+@media (max-width: 767px) {
+  .plans-catalogue {
+    padding-top: 16px;
   }
 }
