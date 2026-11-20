@@ -37,8 +37,10 @@ export interface CustomerElder {
   state?: string | null;
   country: string;
   zip_code?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   care_type: string;
-  mobility_level: string;
+  mobility_level?: string; // retired: the server no longer stores it
   medical_conditions?: string | null;
   allergies?: string | null;
   medications?: string | null;
