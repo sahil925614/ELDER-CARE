@@ -18,6 +18,7 @@ import { HomePage } from '@/pages/website/HomePage'
 import { NotFoundPage } from '@/pages/shared/NotFoundPage'
 import { AboutPage } from '@/pages/website/AboutPage'
 import { ServicesPage } from '@/pages/website/ServicesPage'
+import { ServiceDetailPage } from '@/pages/website/ServiceDetailPage'
 import { PlansPage } from '@/pages/website/PlansPage'
 import { AddOnsPage } from '@/pages/website/AddOnsPage'
 import { DoctorsPage } from '@/pages/website/DoctorsPage'
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'about', element: <AboutPage /> },
       { path: 'services', element: <ServicesPage /> },
+      { path: 'services/:slug', element: <ServiceDetailPage /> },
       { path: 'plans', element: <PlansPage /> },
       { path: 'plans/basic', element: <PlanDetailsPage planName="Basic" /> },
       { path: 'plans/standard', element: <PlanDetailsPage planName="Standard" /> },

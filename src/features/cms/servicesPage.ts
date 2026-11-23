@@ -100,3 +100,34 @@ export function useServiceCatalogue() {
   }, [revision]);
   return { ...result, refresh };
 }
+
+export interface ServiceDetail {
+  id: number; name: string; slug: string; category_id: number; category_name: string;
+  text: string; paragraphs: string[]; image_url: string | null; image_alt: string; icon: string; highlights: string[];
+  duration_minutes: number | null; requires_appointment: boolean; requires_provider: boolean;
+  price: { label: string; type: string | null } | null;
+  plans: { name: string; slug: string; quantity: number | null; is_unlimited: boolean; usage_period: string }[];
+  seo: { title: string | null; description: string | null };
+  related: { name: string; slug: string; category_name: string; text: string; image_url: string | null }[];
+}
+
+/** One service for its own page: loading, "not found" and "could not load" are told apart. */
+export function useServiceDetail(slug: string | undefined) {
+  const [revision, setRevision] = useState(0);
+  const [state, setState] = useState<{ slug?: string; service: ServiceDetail | null; status: 'loading' | 'ready' | 'missing' | 'error' }>({ service: null, status: 'loading' });
+  const retry = useCallback(() => setRevision(current => current + 1), []);
+  useEffect(() => {
+    if (!slug) return;
+    let active = true;
+    apiRequest<{ service: ServiceDetail }>('website/services/' + encodeURIComponent(slug))
+      .then(response => {
+        if (active) setState(response?.service ? { slug, service: response.service, status: 'ready' } : { slug, service: null, status: 'missing' });
+      })
+      .catch((error: { status?: number }) => {
+        if (active) setState({ slug, service: null, status: error?.status === 404 ? 'missing' : 'error' });
+      });
+    return () => { active = false; };
+  }, [slug, revision]);
+  const current = state.slug === slug ? state : { service: null, status: 'loading' as const };
+  return { ...current, retry };
+}

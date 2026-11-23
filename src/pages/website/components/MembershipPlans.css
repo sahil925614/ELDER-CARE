@@ -1,0 +1,209 @@
+/* Senior care membership plan cards. Each card takes its colour from the plan's highlight colour (--plan). */
+.membership-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
+@media (min-width: 720px) {
+  .membership-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1180px) {
+  .membership-grid[data-count="4"],
+  .membership-grid[data-count="3"] { grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); }
+  .membership-grid[data-count="3"] { --cols: 3; }
+}
+
+.membership-card {
+  /* Each plan keeps its own accent, blended with the website's theme colour so the set still looks like one family. */
+  --accent: var(--primary-color, #147f79);
+  --plan: color-mix(in srgb, var(--accent) 86%, var(--primary-color, #147f79));
+  --tint: color-mix(in srgb, var(--plan) 9%, #fff);
+  --tint-strong: color-mix(in srgb, var(--plan) 20%, #fff);
+  --line: color-mix(in srgb, var(--plan) 18%, #e5e7eb);
+  --ink: color-mix(in srgb, var(--plan) 45%, #0f172a);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: visible;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: linear-gradient(180deg, var(--tint-strong) 0, var(--tint) 120px, #fff 260px);
+  box-shadow: 0 12px 34px color-mix(in srgb, var(--plan) 14%, transparent);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.membership-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 44px color-mix(in srgb, var(--plan) 22%, transparent);
+}
+.membership-card[data-featured="true"] {
+  border-color: color-mix(in srgb, var(--plan) 55%, #fff);
+  box-shadow: 0 18px 46px color-mix(in srgb, var(--plan) 26%, transparent);
+}
+
+.membership-ribbon {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: var(--plan);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--plan) 35%, transparent);
+}
+
+.membership-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 30px 10px 6px;
+  color: var(--plan);
+}
+.membership-head > svg { flex-shrink: 0; width: 26px; height: 26px; }
+.membership-head h3 {
+  margin: 0;
+  font-family: inherit;
+  font-size: clamp(18px, 1.35vw, 21px);
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+.membership-lead { color: var(--primary-color, #147f79); font-weight: 600; }
+.membership-tail { font-family: "Lora", Georgia, "Times New Roman", serif; color: var(--plan); font-size: 1.12em; font-style: italic; font-weight: 700; line-height: 1; text-transform: uppercase; letter-spacing: 0.02em; }
+
+.membership-price {
+  padding: 8px 20px 16px;
+  text-align: center;
+  color: #1e293b;
+}
+.membership-price p { margin: 0; }
+.membership-price strong {
+  font-family: inherit;
+  font-size: clamp(26px, 2.2vw, 32px);
+  font-weight: 700;
+  color: var(--theme-dark, #0f3d3a);
+}
+.membership-price span { font-size: 17px; color: #475569; }
+.membership-price small { display: block; margin-top: 4px; font-size: 12.5px; color: #64748b; }
+
+.membership-items {
+  margin: 0;
+  padding: 4px 22px 14px;
+  list-style: none;
+  flex: 1;
+}
+.membership-items li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  min-height: 58px;
+  padding: 9px 0;
+  font-size: 15px;
+  line-height: 1.35;
+  color: #1e293b;
+}
+.membership-items li + li { border-top: 1px solid var(--line); }
+.membership-items li svg { color: var(--plan); justify-self: center; }
+
+.membership-best {
+  margin: 0 14px;
+  padding: 14px 16px 16px;
+  border-radius: 20px;
+  background: var(--tint-strong);
+  text-align: center;
+  min-height: 124px;
+}
+.membership-best p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 0 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--plan) 22%, transparent);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.membership-best svg { color: var(--plan); flex-shrink: 0; }
+.membership-best em {
+  display: block;
+  font-family: inherit;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: #334155;
+}
+
+.membership-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 18px 0;
+  padding: 13px 18px;
+  border-radius: 999px;
+  background: var(--plan);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+.membership-cta:hover { filter: brightness(0.92); }
+.membership-cta[data-disabled="true"] { opacity: 0.55; pointer-events: none; }
+.membership-more {
+  margin: 10px 18px 18px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Billing period switch (Monthly / 3 months / 6 months) */
+.membership-period {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #dbe4ee;
+  border-radius: 999px;
+  background: #fff;
+}
+.membership-period button {
+  padding: 9px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.membership-period button[aria-pressed="true"] { background: var(--primary-color, #176b67); color: #fff; }
+.membership-period button:hover:not([aria-pressed="true"]) { background: #f1f5f9; }
+
+/* Four cards get a little more room than the text column so the plan names stay on one line. */
+@media (min-width: 1500px) {
+  .membership-grid[data-count="4"] { margin-inline: -36px; }
+}

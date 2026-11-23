@@ -5,6 +5,8 @@ import {
   type PlanCatalogItem,
 } from "@/features/plans/planCatalog";
 import { getCurrencyPreference } from "@/features/plans/currencyPreference";
+import { allowanceText } from "@/features/plans/pricing";
+import { usePlansPageContent } from "@/features/cms/plansPage";
 
 import {
   ArrowLeft,
@@ -34,6 +36,8 @@ export function PlanDetailsPage({
   const [error, setError] = useState("");
   const [currency, setCurrency] = useState(getCurrencyPreference);
   const [params] = useSearchParams();
+  // Banner and photo come from the plan itself, then the Care Plans page settings, then the built-in picture.
+  const plansPage = usePlansPageContent(true);
 
   const preference = params.get("duration");
 
@@ -72,9 +76,22 @@ export function PlanDetailsPage({
     return () =>
       window.removeEventListener("elder-care-currency-changed", sync);
   }, []);
+  useEffect(() => {
+    if (!catalogPlan) return;
+    const previous = document.title;
+    document.title = catalogPlan.name + " | Care Plans | Elder Care";
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    const previousDescription = meta?.content;
+    const text = catalogPlan.best_for || catalogPlan.short_description;
+    if (meta && text) meta.content = text;
+    return () => {
+      document.title = previous;
+      if (meta && previousDescription !== undefined) meta.content = previousDescription;
+    };
+  }, [catalogPlan]);
   if (loading || error || !catalogPlan)
     return (
-      <section className="py-16">
+      <section className="pb-16 pt-40">
         <p role="status" className="text-sm text-slate-600">
           {loading ? "Loading plan..." : error}
         </p>
@@ -91,14 +108,16 @@ export function PlanDetailsPage({
     name: catalogPlan.name,
     label: catalogPlan.label,
     description: catalogPlan.description ?? "",
-    highlights: catalogPlan.services.map(
-      (service) =>
-        service.name +
-        " - " +
-        (service.is_unlimited ? "Unlimited" : service.quantity + " included") +
-        " " +
-        (service.usage_period ?? "").replace(/_/g, " "),
-    ),
+    highlights: catalogPlan.features.length
+      ? catalogPlan.features.map((feature) => feature.title)
+      : catalogPlan.services.map(
+          (service) =>
+            service.name +
+            " - " +
+            (service.is_unlimited ? "Unlimited" : service.quantity + " included") +
+            " " +
+            (service.usage_period ?? "").replace(/_/g, " "),
+        ),
   };
 
   const enquiry =
@@ -115,8 +134,9 @@ export function PlanDetailsPage({
         label={`${plan.name} Plan`}
         title={`${plan.name} care, built around your family.`}
         text={plan.description}
-        image={bannerImage}
-        imageAlt="Planning care for your loved ones"
+        image={catalogPlan.image_url || plansPage?.images.banner || bannerImage}
+        imageFallback={bannerImage}
+        imageAlt={catalogPlan.image_alt || "Planning care for your loved ones"}
       >
         <Link to={enquiry} className="button-primary">
           Enquire about {plan.name}
@@ -151,7 +171,7 @@ export function PlanDetailsPage({
 
           <div>
             <div className="overflow-hidden rounded-[24px]">
-              <ContentImage name="Care planning" />
+              <ContentImage name="Care planning" key={catalogPlan.photo_url || plansPage?.images.story || "default"} src={catalogPlan.photo_url || plansPage?.images.story} alt={catalogPlan.photo_alt || catalogPlan.name} />
             </div>
 
             <div className="mt-8">
@@ -168,37 +188,58 @@ export function PlanDetailsPage({
             </div>
 
             {/* =============================================
-                HIGHLIGHTS
+                WHAT IS INCLUDED (plan benefits)
             ============================================= */}
 
-            <div className="mt-9">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                Areas included in the conversation
-              </p>
-
-              <div className="mt-4 border-t border-brand-100">
-                {plan.highlights.map((text, index) => (
-                  <div
-                    key={text}
-                    className="grid grid-cols-[34px_1fr] gap-4 border-b border-brand-100 py-5"
-                  >
-                    <span className="flex size-7 items-center justify-center rounded-lg bg-brand-50 text-primary">
-                      <Check size={14} strokeWidth={2} aria-hidden="true" />
-                    </span>
-
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                        Included area {String(index + 1).padStart(2, "0")}
-                      </p>
-
-                      <p className="mt-1.5 text-sm leading-7 text-slate-600">
-                        {text}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+            {catalogPlan.features.length > 0 && (
+              <div className="mt-10">
+                <h3 className="text-xl font-semibold text-brand-900">What is included</h3>
+                <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {catalogPlan.features.map((feature) => (
+                    <li
+                      key={feature.title}
+                      className="flex items-start gap-3 rounded-2xl border border-brand-100 bg-white px-4 py-3.5 text-sm leading-6 text-slate-700"
+                    >
+                      <Check size={17} strokeWidth={2} className="mt-1 shrink-0 text-primary" aria-hidden="true" />
+                      <span>
+                        {feature.title}
+                        {feature.description ? <small className="block text-slate-500">{feature.description}</small> : null}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
+            )}
+
+            {/* =============================================
+                INCLUDED SERVICES AND VISITS
+            ============================================= */}
+
+            {catalogPlan.services.length > 0 && (
+              <div className="mt-10">
+                <h3 className="text-xl font-semibold text-brand-900">Your included services and visits</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  These are covered by the subscription price. The allowance resets as shown, and visits are arranged
+                  subject to provider availability.
+                </p>
+                <div className="mt-4 overflow-hidden rounded-2xl border border-brand-100 bg-white">
+                  {catalogPlan.services.map((service, index) => (
+                    <div
+                      key={(service.id ?? service.name) + "-" + index}
+                      className={"flex flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-4 " + (index ? "border-t border-brand-100" : "")}
+                    >
+                      <div className="min-w-0">
+                        <p className="font-semibold text-brand-900">{service.name}</p>
+                        {service.notes ? <p className="mt-0.5 text-xs leading-5 text-slate-500">{service.notes}</p> : null}
+                      </div>
+                      <span className="shrink-0 rounded-full bg-brand-50 px-3.5 py-1.5 text-sm font-semibold text-primary">
+                        {allowanceText(service)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* NOTE */}
 
@@ -215,21 +256,6 @@ export function PlanDetailsPage({
           =============================================== */}
 
           <aside className="lg:sticky lg:top-28">
-            {catalogPlan.features.length > 0 && (
-              <section className="mb-6">
-                <h2 className="text-lg font-semibold text-brand-900">
-                  Plan benefits
-                </h2>
-                <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                  {catalogPlan.features.map((feature) => (
-                    <li key={feature.title}>
-                      {feature.title}
-                      {feature.description ? ": " + feature.description : ""}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
             {(catalogPlan.addon_services ?? []).length > 0 && (
               <section className="mb-6">
                 <h2 className="text-lg font-semibold text-brand-900">
@@ -282,7 +308,7 @@ export function PlanDetailsPage({
               <div className="px-6 py-7 sm:px-8">
                 <p className="text-sm leading-7 text-slate-600">
                   {selectedPrice?.formatted_price ?? "Pricing unavailable"}
-                  {selectedPrice
+                  {selectedPrice && selectedPrice.tax_percentage > 0
                     ? ` + ${selectedPrice.tax_percentage}% tax before applicable discounts`
                     : ""}
                 </p>

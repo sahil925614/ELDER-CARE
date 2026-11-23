@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { Activity, ArrowUpRight, Check, FlaskConical, HeartHandshake, House, Pill, RotateCw, Stethoscope } from 'lucide-react';
 import { CmsLink } from '@/features/cms/CmsLink';
 import { defaultServicesSections, useServiceCatalogue, type ServicesPageContent } from '@/features/cms/servicesPage';
@@ -58,14 +58,17 @@ export function ServicesPage() {
             <ContentImage key={service.image_url ?? service.name} name={service.name} src={service.image_url} alt={service.image_alt} className="content-photo--card" />
             <span className="icon-bubble"><Icon size={27} strokeWidth={1.5} aria-hidden="true" /></span>
             <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-primary">{service.category_name}</p>
-            <h3 className="mt-2 text-2xl font-semibold text-brand-900">{service.name}</h3>
+            <h3 className="mt-2 text-2xl font-semibold text-brand-900"><Link to={'/services/' + service.slug} className="hover:text-primary">{service.name}</Link></h3>
             <p className="mt-4 text-sm leading-7 text-slate-600">{service.text}</p>
             <ul className="my-6 space-y-3">{service.highlights.map((point, index) => <li key={index} className="flex gap-2 text-sm leading-6 text-slate-600">
               <Check size={17} className="mt-1 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0">{point}</span>
             </li>)}</ul>
-            <CmsLink to={enquiryUrl(sections.catalogue.enquiry_url, service.name)} className="text-link mt-auto">
-              {sections.catalogue.enquiry_label}<span className="sr-only">: {service.name}</span><ArrowUpRight size={17} aria-hidden="true" />
-            </CmsLink>
+            <div className="mt-auto flex flex-wrap items-center gap-x-6 gap-y-2">
+              <Link to={'/services/' + service.slug} className="text-link">View details<span className="sr-only">: {service.name}</span><ArrowUpRight size={17} aria-hidden="true" /></Link>
+              <CmsLink to={enquiryUrl(sections.catalogue.enquiry_url, service.name)} className="text-link">
+                {sections.catalogue.enquiry_label}<span className="sr-only">: {service.name}</span><ArrowUpRight size={17} aria-hidden="true" />
+              </CmsLink>
+            </div>
           </article>;
         })}
       </div>}
