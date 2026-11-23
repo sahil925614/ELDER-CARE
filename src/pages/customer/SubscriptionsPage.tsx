@@ -375,23 +375,7 @@ function SubscriptionCard({
 
       <div className="grid gap-6 px-6 py-6 sm:px-8 lg:grid-cols-[1fr_0.8fr]">
         <section>
-          <h3 className="text-sm font-semibold text-brand-900">
-            Included services
-          </h3>
-          <div className="mt-4 space-y-3">
-            {subscription.services.length ? (
-              subscription.services.map((service) => (
-                <div key={service.id}>
-                  <ServiceUsage service={service} showUsage={isPaid} />
-                  {service.requires_appointment && statusSlug === 'active' && subscription.payment_status === 'Paid' && (service.is_unlimited || (service.remaining_quantity ?? 0) > 0) && <Link to={`/customer/appointments?subscription=${subscription.id}&service=${service.service_id}`} className="text-link mt-2">Book included visit <ArrowUpRight size={15} /></Link>}
-                </div>
-              ))
-            ) : (
-              <p className="text-sm leading-6 text-slate-500">
-                No service entitlement snapshot is attached yet.
-              </p>
-            )}
-          </div>
+          <VisitsAndBenefits subscription={subscription} statusSlug={statusSlug} isPaid={isPaid} />
         </section>
 
         <section className="self-start rounded-2xl border border-brand-100 bg-brand-50/35 p-5">
@@ -637,6 +621,70 @@ function ActionPill({
       {loading && <Loader2 size={14} className="animate-spin" />}
       {children}
     </button>
+  );
+}
+
+/** Bookable visits show a counter and a Book link; everything else in the plan is a plain list of benefits. */
+function VisitsAndBenefits({ subscription, statusSlug, isPaid }: { subscription: CustomerSubscription; statusSlug: string; isPaid: boolean }) {
+  const visits = subscription.services.filter((service) => service.requires_appointment);
+  const otherServices = subscription.services.filter((service) => !service.requires_appointment);
+  const benefits = [
+    ...subscription.plan.features.map((feature) => feature.title),
+    ...otherServices.map(
+      (service) =>
+        service.service_name +
+        " - " +
+        (service.is_unlimited ? "Unlimited" : String(service.included_quantity ?? 0)) +
+        " " +
+        service.usage_period,
+    ),
+  ];
+  const canBook = statusSlug === "active" && isPaid;
+
+  return (
+    <>
+      {visits.length > 0 && (
+        <>
+          <h3 className="text-sm font-semibold text-brand-900">Your visits</h3>
+          <p className="mt-1 text-xs leading-5 text-slate-500">
+            {isPaid
+              ? "Book a visit and see how many are left in this period."
+              : "Visits included in this plan. You can book them once the payment is complete."}
+          </p>
+          <div className="mt-4 space-y-3">
+            {visits.map((service) => (
+              <div key={service.id}>
+                <ServiceUsage service={service} showUsage={isPaid} />
+                {canBook && (service.is_unlimited || (service.remaining_quantity ?? 0) > 0) && (
+                  <Link to={`/customer/appointments?subscription=${subscription.id}&service=${service.service_id}`} className="text-link mt-2">
+                    Book included visit <ArrowUpRight size={15} />
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {benefits.length > 0 && (
+        <div className={visits.length > 0 ? "mt-8" : ""}>
+          <h3 className="text-sm font-semibold text-brand-900">Your plan benefits</h3>
+          <p className="mt-1 text-xs leading-5 text-slate-500">Everything your plan includes. Our care team arranges these for you.</p>
+          <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
+            {benefits.map((text) => (
+              <li key={text} className="flex items-start gap-2.5 rounded-2xl border border-brand-100 px-4 py-3 text-sm leading-6 text-slate-600">
+                <Check size={16} className="mt-1 shrink-0 text-primary" aria-hidden="true" />
+                <span>{text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {visits.length === 0 && benefits.length === 0 && (
+        <p className="text-sm leading-6 text-slate-500">No service entitlement snapshot is attached yet.</p>
+      )}
+    </>
   );
 }
 

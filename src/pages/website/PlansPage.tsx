@@ -2,7 +2,7 @@ import { ContentImage } from "./components/ContentImage";
 import bannerImage from "@/assets/careplan.webp";
 
 import { useEffect, useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { CmsLink } from '@/features/cms/CmsLink';
 import { defaultPlansSections, usePlansCatalogue, type PlansPageContent } from '@/features/cms/plansPage';
 import { getCurrencyPreference } from "@/features/plans/currencyPreference";
@@ -10,9 +10,7 @@ import { getCurrencyPreference } from "@/features/plans/currencyPreference";
 import {
   ArrowUpRight,
   CalendarDays,
-  Check,
   CheckCircle2,
-  ChevronDown,
   HeartHandshake,
   ListChecks,
   MessageCircle,
@@ -21,19 +19,15 @@ import {
 } from "lucide-react";
 
 import { PageHero, PageCta, PageFaq } from "./components/PageSections";
+import { MembershipPlanCard } from "./components/MembershipPlanCard";
+import { periodLabel } from "@/features/plans/pricing";
 import './PlansPage.css';
-
-// Cards show this many services until "Show more" is clicked, so they stay
-// the same height. Matches the home page plans section.
-const VISIBLE_PLAN_SERVICES = 4;
 
 export function PlansPage() {
   const { plansPage } = useOutletContext<{ plansPage: PlansPageContent | null }>();
   const sections = plansPage?.sections ?? defaultPlansSections;
   const [preferredDuration, setDuration] = useState<number | null>(null);
   const [currency, setCurrency] = useState(() => getCurrencyPreference());
-  const [centerPlan, setCenterPlan] = useState(0);
-  const [expandedPlans, setExpandedPlans] = useState<Record<number, boolean>>({});
   const { plans, loading, error, retry } = usePlansCatalogue(currency);
 
   useEffect(() => {
@@ -100,7 +94,7 @@ export function PlansPage() {
             <div
               role="group"
               aria-label="Preferred subscription duration"
-              className="flex flex-wrap gap-2"
+              className="membership-period"
             >
               {durations.map((value) => (
                 <button
@@ -108,14 +102,8 @@ export function PlansPage() {
                   key={value}
                   aria-pressed={duration === value}
                   onClick={() => setDuration(value)}
-                  className={
-                    "rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors " +
-                    (duration === value
-                      ? "border-primary bg-primary text-white"
-                      : "border-brand-100 bg-white text-brand-900 hover:bg-brand-50")
-                  }
                 >
-                  {value} {sections.introduction.months_label}
+                  {periodLabel(value)}
                 </button>
               ))}
             </div>
@@ -125,14 +113,6 @@ export function PlansPage() {
             </p>
           </div>
         </div>
-
-        {/* =================================================
-            PLANS — NEW DESIGN
-        ================================================= */}
-
-        {/* =================================================
-    CARE PLAN PACKAGES — COMPACT VERSION
-================================================= */}
 
         {loading && (
           <div className="mt-10 rounded-[24px] border border-brand-100 bg-white p-7 text-sm text-slate-500">
@@ -148,349 +128,25 @@ export function PlansPage() {
         )}
 
         <div
-          className="plans-catalogue mt-10 grid items-stretch gap-6 lg:grid-cols-3"
+          className="membership-grid mt-12"
           data-count={plans.length}
           role="region"
           aria-label="Care plans"
-          tabIndex={0}
-          onScroll={(event) => {
-            const track = event.currentTarget;
-            if (!window.matchMedia("(max-width: 767px)").matches) return;
-            const center = track.scrollLeft + track.clientWidth / 2;
-            let closest = 0;
-            let distance = Infinity;
-            Array.from(track.querySelectorAll<HTMLElement>("article")).forEach((card, index) => {
-              const next = Math.abs(card.offsetLeft + card.offsetWidth / 2 - center);
-              if (next < distance) {
-                distance = next;
-                closest = index;
-              }
-            });
-            setCenterPlan(closest);
-          }}
         >
-          {plans.map((plan, index) => {
-            const isPopular = plan.is_featured;
-            const selectedPrice =
-              plan.prices.find((price) => price.duration_months === duration) ??
-              plan.prices[0];
-            const features = plan.features.map((feature) => feature.title).slice(0, 4);
-            const isExpanded = !!expandedPlans[plan.id];
-            const hiddenCount = Math.max(plan.services.length - VISIBLE_PLAN_SERVICES, 0);
-            const visibleServices = isExpanded
-              ? plan.services
-              : plan.services.slice(0, VISIBLE_PLAN_SERVICES);
-
-            return (
-              <article
-                key={plan.id}
-                data-centered={centerPlan === index}
-                data-featured={isPopular}
-                className={
-                  "plans-catalogue-card relative flex flex-col overflow-hidden rounded-[28px] border transition-all duration-300 " +
-                  (isPopular
-                    ? "border-primary bg-primary text-white shadow-[0_18px_45px_rgba(20,127,121,0.14)]"
-                    : "border-brand-100 bg-white text-brand-900 hover:border-brand-200 hover:shadow-[0_16px_40px_rgba(20,127,121,0.06)]")
-                }
-              >
-                {/* POPULAR LABEL */}
-
-                {isPopular && (
-                  <div className="plans-catalogue-badge">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em]">
-                      {sections.catalogue.popular_label}
-                    </p>
-                  </div>
-                )}
-
-                {/* PACKAGE HEADER */}
-
-                <div className="plans-catalogue-header px-7 pb-5 pt-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p
-                        className={
-                          "text-[11px] font-semibold uppercase tracking-[0.17em] " +
-                          (isPopular ? "text-brand-100" : "text-primary")
-                        }
-                      >
-                        {plan.label || plan.code}
-                      </p>
-
-                      <h3 className="mt-2 text-3xl font-semibold tracking-[-0.025em]">
-                        {plan.name}
-                      </h3>
-                    </div>
-
-                    <span
-                      className={
-                        "flex size-11 shrink-0 items-center justify-center rounded-2xl " +
-                        (isPopular
-                          ? "bg-white/10 text-white"
-                          : "bg-brand-50 text-primary")
-                      }
-                    >
-                      <HeartHandshake
-                        size={23}
-                        strokeWidth={1.5}
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </div>
-
-                  <p
-                    className={
-                      "mt-4 text-sm leading-6 " +
-                      (isPopular ? "text-white/80" : "text-slate-600")
-                    }
-                  >
-                    {plan.short_description || plan.description}
-                  </p>
-                </div>
-
-                {/* DIVIDER */}
-
-                <div
-                  className={
-                    "mx-7 border-t " +
-                    (isPopular ? "border-white/20" : "border-brand-100")
-                  }
-                />
-
-                {/* PACKAGE DETAILS */}
-
-                <div className="plans-catalogue-body flex flex-1 flex-col px-7 pb-6 pt-5">
-                  <div
-                    className={
-                      "plans-catalogue-price rounded-2xl border px-4 py-3.5 " +
-                      (isPopular
-                        ? "border-white/20 bg-white/10"
-                        : "border-brand-100 bg-brand-50/70")
-                    }
-                  >
-                    <p
-                      className={
-                        "text-[10px] font-semibold uppercase tracking-[0.16em] " +
-                        (isPopular ? "text-white/60" : "text-slate-400")
-                      }
-                    >
-                      {sections.catalogue.price_label}
-                    </p>
-                    <p className="mt-1.5 text-3xl font-semibold tracking-tight sm:text-[34px]">
-                      {selectedPrice?.formatted_price || sections.catalogue.price_pending_label}
-                    </p>
-                    <p
-                      className={
-                        "mt-1 text-[11px] leading-5 " +
-                        (isPopular ? "text-white/70" : "text-slate-500")
-                      }
-                    >
-                      {selectedPrice?.label || sections.catalogue.select_duration_label}
-                      {selectedPrice?.exchange_source && selectedPrice.currency !== "INR"
-                        ? " \u2022 " + sections.catalogue.converted_rate_label
-                        : ""}
-                    </p>
-                  </div>
-
-                  <p
-                    className={
-                      "mt-5 text-[11px] font-semibold uppercase tracking-[0.15em] " +
-                      (isPopular ? "text-white/65" : "text-slate-400")
-                    }
-                  >
-                    {sections.catalogue.services_label}
-                  </p>
-
-                  <ul
-                    id={"plan-services-" + plan.id}
-                    className="plans-catalogue-services mt-3 space-y-2.5"
-                  >
-                    {visibleServices.map((service) => (
-                      <li
-                        key={service.id || service.name}
-                        className={
-                          "rounded-2xl border px-3 py-2.5 " +
-                          (isPopular
-                            ? "border-white/15 bg-white/[0.06] text-white/90"
-                            : "border-brand-100 bg-white text-slate-600")
-                        }
-                      >
-                        <div className="flex items-start gap-3">
-                          <span
-                            className={
-                              "mt-px flex size-6 shrink-0 items-center justify-center rounded-full " +
-                              (isPopular ? "bg-white/15" : "bg-brand-50")
-                            }
-                          >
-                            <Check
-                              size={12}
-                              strokeWidth={2.2}
-                              className={isPopular ? "text-white" : "text-primary"}
-                              aria-hidden="true"
-                            />
-                          </span>
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold leading-5">
-                              {service.name}
-                            </p>
-                            <p
-                              className={
-                                "mt-1 text-[11px] leading-4 " +
-                                (isPopular ? "text-white/65" : "text-slate-400")
-                              }
-                            >
-                              {service.is_unlimited
-                                ? sections.catalogue.unlimited_label
-                                : (service.quantity ?? 0) + " " + sections.catalogue.included_label}{" "}
-                              {service.usage_period
-                                ? service.usage_period.replace(/_/g, " ")
-                                : ""}
-                            </p>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {hiddenCount > 0 && (
-                    <button
-                      type="button"
-                      aria-expanded={isExpanded}
-                      aria-controls={"plan-services-" + plan.id}
-                      onClick={() =>
-                        setExpandedPlans((current) => ({
-                          ...current,
-                          [plan.id]: !current[plan.id],
-                        }))
-                      }
-                      className={
-                        "mt-2 inline-flex w-fit items-center gap-1 text-xs font-semibold " +
-                        (isPopular ? "text-white" : "text-primary")
-                      }
-                    >
-                      {isExpanded
-                        ? "Show less"
-                        : `Show ${hiddenCount} more service${hiddenCount > 1 ? "s" : ""}`}
-                      <ChevronDown
-                        size={14}
-                        aria-hidden="true"
-                        className={"transition-transform " + (isExpanded ? "rotate-180" : "")}
-                      />
-                    </button>
-                  )}
-
-                  {features.length > 0 && (
-                    <div
-                      className={
-                        "plans-catalogue-benefits mt-4 border-t pt-4 " +
-                        (isPopular ? "border-white/20" : "border-brand-100")
-                      }
-                    >
-                      <p
-                        className={
-                          "text-[10px] font-semibold uppercase tracking-[0.14em] " +
-                          (isPopular ? "text-white/55" : "text-slate-400")
-                        }
-                      >
-                        {sections.catalogue.benefits_label}
-                      </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {features.map((feature) => (
-                          <span
-                            key={feature}
-                            className={
-                              "rounded-full px-3 py-1.5 text-[11px] font-semibold " +
-                              (isPopular
-                                ? "bg-white/10 text-white/80"
-                                : "bg-brand-50 text-primary")
-                            }
-                          >
-                            {feature}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Pushes the duration + button to the bottom so they line up
-                      across cards of different content lengths. */}
-                  <div className="mt-auto" aria-hidden="true" />
-
-                  {/* DURATION */}
-
-                  <div
-                    className={
-                      "plans-catalogue-duration mt-4 border-y py-3 " +
-                      (isPopular ? "border-white/20" : "border-brand-100")
-                    }
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <p
-                          className={
-                            "text-[10px] font-semibold uppercase tracking-[0.14em] " +
-                            (isPopular ? "text-white/60" : "text-slate-400")
-                          }
-                        >
-                          {sections.catalogue.duration_label}
-                        </p>
-
-                        <p className="mt-1 text-sm font-semibold">
-                          {selectedPrice?.label || sections.catalogue.duration_pending_label}
-                        </p>
-                      </div>
-
-                      <CalendarDays
-                        size={19}
-                        strokeWidth={1.5}
-                        className={
-                          isPopular ? "text-brand-100" : "text-primary"
-                        }
-                        aria-hidden="true"
-                      />
-                    </div>
-                  </div>
-
-                  {/* NOTE */}
-
-                  {currency !== "INR" && (
-                    <p
-                      className={
-                        "mt-4 text-[11px] leading-5 " +
-                        (isPopular ? "text-white/65" : "text-slate-500")
-                      }
-                    >
-                      {sections.catalogue.international_text}
-                    </p>
-                  )}
-
-                  {/* CTA */}
-
-                  {selectedPrice ? <Link
-                    to={
-                      "/customer/checkout?plan=" +
-                      encodeURIComponent(plan.slug) +
-                      (selectedPrice ? "&price=" + selectedPrice.id : "")
-                    }
-                    className={
-                      "group mt-4 flex items-center justify-between rounded-full px-5 py-3 text-sm font-semibold transition-colors " +
-                      (isPopular
-                        ? "bg-white text-primary hover:bg-brand-50"
-                        : "bg-primary text-white hover:bg-brand-900")
-                    }
-                  >
-                    {sections.catalogue.choose_label} {plan.name}
-                    <ArrowUpRight
-                      size={16}
-                      className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                      aria-hidden="true"
-                    />
-                  </Link> : <button type="button" disabled className="mt-4 flex items-center justify-between rounded-full border border-current/20 px-5 py-3 text-sm font-semibold opacity-60">{sections.catalogue.price_pending_label}</button>}
-                </div>
-              </article>
-            );
-          })}
+          {plans.map((plan) => (
+            <MembershipPlanCard
+              key={plan.id}
+              plan={plan}
+              price={plan.prices.find((price) => price.duration_months === duration) ?? plan.prices[0]}
+              popularLabel={sections.catalogue.popular_label}
+              chooseLabel={sections.catalogue.choose_label}
+            />
+          ))}
         </div>
+
+        {currency !== "INR" && plans.length > 0 && (
+          <p className="mt-4 text-center text-xs leading-5 text-slate-500">{sections.catalogue.international_text}</p>
+        )}
 
         {/* PACKAGE NOTE */}
 

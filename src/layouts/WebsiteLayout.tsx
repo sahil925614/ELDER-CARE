@@ -57,7 +57,7 @@ export function WebsiteLayout() {
     "/terms",
     "/enquiry",
     "/become-a-partner",
-  ].includes(pathname) || isBlog;
+  ].includes(pathname) || isBlog || pathname.startsWith('/plans/') || pathname.startsWith('/services/');
   return (
     <div className="relative flex min-h-screen flex-col">
       <a className="skip-link" href="#main-content">

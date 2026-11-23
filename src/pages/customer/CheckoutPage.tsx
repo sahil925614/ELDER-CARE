@@ -24,10 +24,12 @@ import {
   verifyRazorpaySubscription,
 } from "@/features/plans/planCatalog";
 import { getCurrencyPreference } from "@/features/plans/currencyPreference";
+import { money, monthlyRate, periodLabel } from "@/features/plans/pricing";
 import { ApiError } from "@/services/api/client";
 import { Badge, PageHeading } from "./components/PortalUi";
 
 type CheckoutStep = "plan" | "elder" | "review" | "done";
+const FLOW_STEPS: CheckoutStep[] = ["plan", "elder", "review"];
 type CheckoutPreview = NonNullable<Awaited<ReturnType<typeof previewCustomerCheckout>>>["preview"];
 type CreatedCheckout = NonNullable<Awaited<ReturnType<typeof createCustomerCheckout>>>;
 
@@ -43,7 +45,8 @@ declare global {
 export function CheckoutPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const [step, setStep] = useState<CheckoutStep>("plan");
+  // Coming from "Choose <plan>" on the website the plan is already picked, so start at the elder.
+  const [step, setStep] = useState<CheckoutStep>(() => (params.get("plan") ? "elder" : "plan"));
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -56,7 +59,6 @@ export function CheckoutPage() {
   );
   const [elderId, setElderId] = useState<number | null>(null);
   const [autoRenew, setAutoRenew] = useState(false);
-  const [paymentMessage, setPaymentMessage] = useState("");
   const [successOpen, setSuccessOpen] = useState(false);
   const [preview, setPreview] = useState<CheckoutPreview | null>(null);
   const [created, setCreated] = useState<CreatedCheckout | null>(null);
@@ -133,8 +135,9 @@ export function CheckoutPage() {
     }
   }
 
-  async function createCheckout() {
-    if (!selectedPrice || !elderId) return;
+  /** One button: places the order and opens the payment window straight away. Nothing is emailed until the payment is complete. */
+  async function payNow() {
+    if (!selectedPrice || !elderId || submitting) return;
 
     setSubmitting(true);
     setError("");
@@ -145,37 +148,30 @@ export function CheckoutPage() {
         currency,
         auto_renew: autoRenew,
       });
-      if (response) {
+      if (!response) return;
+
+      const order = response.payment_order;
+      if (!order || !order.enabled) {
+        // Online payment is not set up: the order is placed and our team confirms the payment.
         setCreated(response);
         setStep("done");
+        return;
       }
-    } catch (caught) {
-      setError(errorMessage(caught));
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
-  async function payNow(order?: PaymentOrder) {
-    if (!order || !created?.invoice.id) return;
-
-    if (!order.enabled) {
-      setPaymentMessage(order.message || "Online payment is not configured yet.");
-      return;
-    }
-
-    setSubmitting(true);
-    setPaymentMessage("");
-    try {
       if (order.gateway === "razorpay") {
-        await payWithRazorpay(order, created.invoice.id);
+        await payWithRazorpay(order, response.invoice.id);
       } else {
-        await payWithPaypal(order, created.invoice.id);
+        await payWithPaypal(order, response.invoice.id);
       }
       setSuccessOpen(true);
       window.setTimeout(() => navigate("/customer/subscriptions", { replace: true }), 1800);
     } catch (caught) {
-      setPaymentMessage(errorMessage(caught));
+      const message = errorMessage(caught);
+      setError(
+        message.toLowerCase().includes("cancel")
+          ? "The payment was not completed and nothing was charged. Press Pay now to try again."
+          : message,
+      );
     } finally {
       setSubmitting(false);
     }
@@ -185,7 +181,7 @@ export function CheckoutPage() {
     <>
       <PageHeading
         title="Purchase subscription"
-        text="Choose a plan, link it to an elder profile, review the billing snapshot, and create the checkout."
+        text="Choose a plan, pick the elder it is for, and pay. Your confirmation and invoice are emailed once the payment is complete."
       />
 
       {error && (
@@ -206,10 +202,11 @@ export function CheckoutPage() {
 
             {step === "plan" && (
               <div className="mt-7 space-y-5">
-                <div className="grid gap-4 lg:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   {plans.map((plan) => {
                     const active = selectedPlan?.id === plan.id;
                     const price = plan.prices[0];
+                    const monthly = price ? money(monthlyRate(price), price.currency) + " / month" : "";
 
                     return (
                       <button
@@ -236,7 +233,7 @@ export function CheckoutPage() {
                           {plan.short_description || plan.description}
                         </p>
                         <p className="mt-4 text-sm font-semibold text-brand-900">
-                          {price?.formatted_price || "Pricing pending"}
+                          {monthly || "Pricing pending"}
                         </p>
                       </button>
                     );
@@ -246,7 +243,7 @@ export function CheckoutPage() {
                 {selectedPlan && (
                   <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-5">
                     <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      Duration
+                      Billing period
                     </label>
                     <select
                       value={priceId ?? ""}
@@ -255,7 +252,8 @@ export function CheckoutPage() {
                     >
                       {selectedPlan.prices.map((price) => (
                         <option key={price.id} value={price.id}>
-                          {price.label} - {price.formatted_price}
+                          {periodLabel(price.duration_months)}
+                          {price.free_months ? " + " + price.free_months + " free" : ""} - {price.formatted_price}
                         </option>
                       ))}
                     </select>
@@ -332,7 +330,7 @@ export function CheckoutPage() {
                     className="button-primary disabled:opacity-50"
                   >
                     {submitting ? <Loader2 className="animate-spin" size={17} /> : <ReceiptText size={17} />}
-                    Review
+                    Continue to payment
                   </button>
                 </div>
               </div>
@@ -345,14 +343,14 @@ export function CheckoutPage() {
                     ["Plan", selectedPlan?.name || "Plan"],
                     ["Elder", selectedElder?.name || "Elder"],
                     ["Period", preview.start_date + " to " + preview.end_date],
-                    ["Amount", preview.amounts.formatted_final_amount],
-                    ["Gateway", preview.gateway.gateway.toUpperCase()],
-                    ["Currency", preview.gateway.currency],
+                    ["Amount to pay", preview.amounts.formatted_final_amount],
                   ]}
                 />
 
                 <div className="rounded-2xl border border-brand-100 bg-brand-50 p-5 text-sm leading-6 text-slate-600">
-                  {preview.gateway.message}
+                  {preview.gateway.enabled
+                    ? "You will pay securely with " + (preview.gateway.gateway === "razorpay" ? "Razorpay" : "PayPal") + ". Your subscription starts as soon as the payment is complete, and we email your confirmation and invoice."
+                    : preview.gateway.message}
                 </div>
 
                 <div className="flex flex-wrap justify-between gap-3">
@@ -362,11 +360,11 @@ export function CheckoutPage() {
                   <button
                     type="button"
                     disabled={submitting}
-                    onClick={createCheckout}
+                    onClick={payNow}
                     className="button-primary disabled:opacity-50"
                   >
                     {submitting ? <Loader2 className="animate-spin" size={17} /> : <CreditCard size={17} />}
-                    Create checkout
+                    {preview.gateway.enabled ? "Pay " + preview.amounts.formatted_final_amount + " now" : "Place order"}
                   </button>
                 </div>
               </div>
@@ -378,34 +376,13 @@ export function CheckoutPage() {
                   <Check size={22} />
                 </span>
                 <h2 className="mt-5 text-2xl font-semibold text-brand-900">
-                  Checkout created
+                  Order placed
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {created.subscription.subscription_number} is pending payment.
-                  Invoice {created.invoice.invoice_number} is ready.
+                  {created.subscription.subscription_number} is waiting for payment. Online payment is not available
+                  right now, so our team will confirm your payment. Invoice {created.invoice.invoice_number} has been
+                  emailed to you.
                 </p>
-                {created.payment_order && (
-                  <div className="mt-5 rounded-2xl border border-brand-100 bg-white p-4">
-                    <p className="text-sm font-semibold text-brand-900">
-                      {created.payment_order.gateway === "razorpay" ? "Razorpay" : "PayPal"} checkout
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      {created.payment_order.currency} {created.payment_order.amount.toFixed(2)}
-                    </p>
-                    <button
-                      type="button"
-                      disabled={submitting}
-                      onClick={() => payNow(created.payment_order)}
-                      className="button-primary mt-4 disabled:opacity-50"
-                    >
-                      {submitting ? <Loader2 className="animate-spin" size={17} /> : <CreditCard size={17} />}
-                      Pay now
-                    </button>
-                    {paymentMessage && (
-                      <p className="mt-3 text-xs font-medium text-primary">{paymentMessage}</p>
-                    )}
-                  </div>
-                )}
                 <div className="mt-5 flex flex-wrap gap-3">
                   <Link to="/customer/subscriptions" className="button-primary">
                     View subscription
@@ -481,13 +458,12 @@ function PaymentSuccessPopup() {
 }
 
 function StepHeader({ step }: { step: CheckoutStep }) {
-  const steps: CheckoutStep[] = ["plan", "elder", "review", "done"];
-  const labels = { plan: "Plan", elder: "Elder", review: "Review", done: "Created" };
-  const current = steps.indexOf(step);
+  const labels: Record<string, string> = { plan: "Plan", elder: "Elder", review: "Pay" };
+  const current = step === "done" ? FLOW_STEPS.length - 1 : FLOW_STEPS.indexOf(step);
 
   return (
-    <div className="grid gap-3 sm:grid-cols-4">
-      {steps.map((item, index) => (
+    <div className="grid gap-3 sm:grid-cols-3">
+      {FLOW_STEPS.map((item, index) => (
         <div
           key={item}
           className={
