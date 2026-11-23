@@ -1,4 +1,5 @@
 import { useOutletContext } from "react-router-dom";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -363,13 +364,15 @@ export function TestimonialsPage() {
             <>
               <StoriesHeading content={content.stories} />
               <div className="mt-10 flex min-h-[290px] items-center justify-center gap-3 border-y border-brand-100 text-sm text-slate-600">
-                <p role="status">
-                  {stories.loading
-                    ? content.stories.loading_text
-                    : stories.error
+                {stories.loading ? (
+                  <SiteLoader label={content.stories.loading_text} />
+                ) : (
+                  <p role="status">
+                    {stories.error
                       ? content.stories.error_text
                       : content.stories.empty_text}
-                </p>
+                  </p>
+                )}
                 {stories.error && (
                   <button
                     type="button"

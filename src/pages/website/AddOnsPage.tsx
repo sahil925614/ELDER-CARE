@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { useOutletContext } from 'react-router-dom';
 import { ArrowUpRight, Check, RotateCw } from 'lucide-react';
 import { ExtraHero, EditorialPhoto, Intro } from './components/WebsiteExtras';
@@ -61,7 +62,8 @@ export function AddOnsPage() {
           className="extra-chip" aria-pressed={filter === key} onClick={() => setCategory(key)}>{label}</button>)}
       </div>
       <p className="sr-only" role="status">{visible.length} services shown</p>
-      {(catalogue.loading || catalogue.error || !visible.length) && <div role="status" className="flex items-center gap-3 py-6 text-sm text-slate-600">
+      {catalogue.loading && <SiteLoader label={sections.catalogue.loading_text} />}
+      {!catalogue.loading && (catalogue.error || !visible.length) && <div role="status" className="flex items-center gap-3 py-6 text-sm text-slate-600">
         <span>{catalogue.loading ? sections.catalogue.loading_text : catalogue.error ? sections.catalogue.error_text : sections.catalogue.empty_text}</span>
         {catalogue.error && <button type="button" onClick={catalogue.retry} title="Retry loading add-ons" aria-label="Retry loading add-ons"
           className="flex size-11 shrink-0 items-center justify-center rounded-full border border-brand-200 bg-white text-primary hover:bg-brand-50"><RotateCw size={18} aria-hidden="true" /></button>}

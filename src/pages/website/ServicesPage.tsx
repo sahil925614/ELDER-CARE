@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link, useOutletContext } from 'react-router-dom';
 import { Activity, ArrowUpRight, Check, FlaskConical, HeartHandshake, House, Pill, RotateCw, Stethoscope } from 'lucide-react';
 import { CmsLink } from '@/features/cms/CmsLink';
@@ -48,7 +49,7 @@ export function ServicesPage() {
         </button>)}
       </div>
       <p className="sr-only" role="status">{visible.length} services shown</p>
-      {catalogue.loading || catalogue.error || !visible.length ? <div className="flex min-h-[290px] items-center justify-center gap-3 text-sm text-slate-600" role="status">
+      {catalogue.loading ? <SiteLoader label="Loading services..." className="min-h-[290px]" /> : catalogue.error || !visible.length ? <div className="flex min-h-[290px] items-center justify-center gap-3 text-sm text-slate-600" role="status">
         {catalogue.loading ? 'Loading services...' : catalogue.error ? 'Services could not be loaded.' : 'No services are available right now.'}
         {catalogue.error && <button type="button" onClick={catalogue.refresh} title="Retry loading services" aria-label="Retry loading services" className="flex size-11 shrink-0 items-center justify-center rounded-full border border-brand-200 bg-white text-primary hover:bg-brand-50"><RotateCw size={18} aria-hidden="true" /></button>}
       </div> : <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

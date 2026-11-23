@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link, useParams } from 'react-router-dom';
 import {
   Activity, ArrowLeft, ArrowUpRight, CalendarCheck, Check, Clock3, FlaskConical, HeartHandshake, House,
@@ -60,9 +61,9 @@ export function ServiceDetailPage() {
   if (status !== 'ready' || !service) {
     return (
       <section className="pb-24 pt-44 text-center" aria-busy={status === 'loading'}>
-        <p role="status" className="text-sm text-slate-600">
-          {status === 'loading' ? 'Loading service...' : status === 'missing' ? 'This service is not available.' : 'This service could not be loaded.'}
-        </p>
+        {status === 'loading' ? <SiteLoader label="Loading service..." /> : <p role="status" className="text-sm text-slate-600">
+          {status === 'missing' ? 'This service is not available.' : 'This service could not be loaded.'}
+        </p>}
         {status === 'error' && (
           <button type="button" onClick={retry} aria-label="Try loading again" className="mx-auto mt-4 flex size-11 items-center justify-center rounded-full border border-brand-200 bg-white text-primary">
             <RotateCw size={18} aria-hidden="true" />

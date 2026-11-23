@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { useOutletContext } from 'react-router-dom';
 import { ChevronDown, RefreshCw, Search, X } from 'lucide-react';
 import { useFaqCatalog } from '@/features/cms/faqCatalog';
@@ -38,7 +39,8 @@ export function FaqsPage() {
             className={'max-w-full rounded-full border px-4 py-2 text-xs font-semibold transition-colors ' + (value === category ? 'border-primary bg-primary text-white' : 'border-brand-100 bg-white text-slate-500 hover:border-brand-200 hover:bg-brand-50 hover:text-primary')}>{value || content.display.all_label}</button>)}
         </div>
       </div>
-      {catalog.status !== 'ready' && <div className="py-12 text-center" role={catalog.status === 'error' ? 'alert' : 'status'}>
+      {catalog.status === 'loading' && <SiteLoader label={content.display.loading_text} />}
+      {catalog.status === 'error' && <div className="py-12 text-center" role={catalog.status === 'error' ? 'alert' : 'status'}>
         <p className="text-sm text-slate-600">{catalog.status === 'error' ? content.display.error_text : content.display.loading_text}</p>
         {catalog.status === 'error' && <button type="button" className="button-outline mt-5" onClick={catalog.retry}><RefreshCw size={16} aria-hidden="true" />{content.display.retry_label}</button>}
       </div>}

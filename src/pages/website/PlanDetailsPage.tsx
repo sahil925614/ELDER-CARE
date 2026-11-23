@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link, useSearchParams, useParams } from "react-router-dom";
 import {
   fetchPlanCatalog,
@@ -92,9 +93,13 @@ export function PlanDetailsPage({
   if (loading || error || !catalogPlan)
     return (
       <section className="pb-16 pt-40">
-        <p role="status" className="text-sm text-slate-600">
-          {loading ? "Loading plan..." : error}
-        </p>
+        {loading ? (
+          <SiteLoader label="Loading plan..." />
+        ) : (
+          <p role="status" className="text-sm text-slate-600">
+            {error}
+          </p>
+        )}
         <Link to="/plans" className="text-link mt-5">
           All care plans <ArrowLeft size={16} />
         </Link>
