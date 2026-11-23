@@ -23,6 +23,12 @@ export interface PlanCatalogItem {
   slug: string;
   label?: string | null;
   short_description?: string | null;
+  best_for?: string | null;
+  highlight_color?: string | null;
+  image_url?: string | null;
+  image_alt?: string | null;
+  photo_url?: string | null;
+  photo_alt?: string | null;
   description?: string | null;
   is_featured: boolean;
   minimum_duration_months: number;

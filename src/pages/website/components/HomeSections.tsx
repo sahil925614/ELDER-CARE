@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./HomePlansCarousel.css";
 import { AddOnServiceSlider } from "./AddOnServiceSlider";
 import { ContentImage } from "./ContentImage";
@@ -14,9 +14,10 @@ import {
   type PlanCatalogItem,
 } from "@/features/plans/planCatalog";
 import { getCurrencyPreference } from "@/features/plans/currencyPreference";
+import { periodLabel } from "@/features/plans/pricing";
+import { MembershipPlanCard } from "./MembershipPlanCard";
 import {
   ArrowUpRight,
-  Check,
   HeartHandshake,
   Stethoscope,
   Activity,
@@ -55,15 +56,10 @@ function SectionHeading({
   );
 }
 
-// Plans show this many services until "Show more" is clicked, so the cards
-// stay the same height.
-const VISIBLE_PLAN_SERVICES = 4;
-
 // Same wording as the duration selector on the Plans page.
 const plansDurationText = {
-  label: "Preferred duration",
-  months: "months",
-  help: "This helps us understand what you would like to discuss. It does not create a subscription.",
+  label: "Billing period",
+  help: "The price on every plan card updates for the period you choose.",
 };
 
 export function HomeSections() {
@@ -81,14 +77,9 @@ export function HomeSections() {
   const [servicesError, setServicesError] = useState("");
   const [plansLoading, setPlansLoading] = useState(true);
   const [plansError, setPlansError] = useState("");
-  const plansTrack = useRef<HTMLDivElement>(null);
-  const [centerPlan, setCenterPlan] = useState(1);
   const [dynamicPlans, setDynamicPlans] = useState<PlanCatalogItem[]>([]);
   const [preferredDuration, setPreferredDuration] = useState<number | null>(
     null,
-  );
-  const [expandedPlans, setExpandedPlans] = useState<Record<string, boolean>>(
-    {},
   );
   const [currency, setCurrency] = useState(() => getCurrencyPreference());
   const addonServices = useMemo(
@@ -117,54 +108,6 @@ export function HomeSections() {
     preferredDuration !== null && planDurations.includes(preferredDuration)
       ? preferredDuration
       : (planDurations[0] ?? null);
-  const homePlans = dynamicPlans.map((plan, index) => {
-    const selectedPrice =
-      plan.prices.find((price) => price.duration_months === selectedDuration) ??
-      plan.prices[0];
-    return {
-    name: plan.name,
-    slug: plan.slug,
-    isFeatured: plan.is_featured,
-    number: String(index + 1).padStart(2, "0"),
-    eyebrow: plan.label || plan.code || "Care plan",
-    description:
-      plan.short_description ||
-      plan.description ||
-      "Ongoing support for your loved one's care needs.",
-    features: (plan.features.length
-      ? plan.features.map((feature) => feature.title)
-      : plan.services.map((service) => service.name)
-    ).slice(0, 3),
-    services: plan.services,
-    price: selectedPrice?.formatted_price,
-    duration: selectedPrice?.label,
-    priceId: selectedPrice?.id,
-    };
-  });
-
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)");
-    const alignPlans = () => {
-      const track = plansTrack.current;
-      if (!track) return;
-      if (!media.matches) {
-        track.scrollLeft = 0;
-        return;
-      }
-      const cards = track.querySelectorAll<HTMLElement>("article");
-      const index = Math.min(1, cards.length - 1);
-      const card = cards[index];
-      if (card) {
-        track.scrollLeft =
-          card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2;
-        setCenterPlan(index);
-      }
-    };
-    alignPlans();
-    media.addEventListener("change", alignPlans);
-    return () => media.removeEventListener("change", alignPlans);
-  }, [dynamicPlans]);
-
   useEffect(() => {
     let active = true;
     let revision = 0;
@@ -233,24 +176,6 @@ export function HomeSections() {
     return () =>
       window.removeEventListener("elder-care-currency-changed", syncCurrency);
   }, []);
-
-  function updateCenterPlan() {
-    const track = plansTrack.current;
-    if (!track || !window.matchMedia("(max-width: 767px)").matches) return;
-    const center = track.scrollLeft + track.clientWidth / 2;
-    let closest = 0;
-    let distance = Infinity;
-    Array.from(track.querySelectorAll<HTMLElement>("article")).forEach(
-      (card, index) => {
-        const next = Math.abs(card.offsetLeft + card.offsetWidth / 2 - center);
-        if (next < distance) {
-          distance = next;
-          closest = index;
-        }
-      },
-    );
-    setCenterPlan(closest);
-  }
 
   return (
     <div className="home-dynamic-content">
@@ -758,7 +683,7 @@ export function HomeSections() {
                   <div
                     role="group"
                     aria-label="Preferred subscription duration"
-                    className="flex flex-wrap gap-2"
+                    className="membership-period"
                   >
                     {planDurations.map((value) => (
                       <button
@@ -766,14 +691,8 @@ export function HomeSections() {
                         key={value}
                         aria-pressed={selectedDuration === value}
                         onClick={() => setPreferredDuration(value)}
-                        className={
-                          "rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors " +
-                          (selectedDuration === value
-                            ? "border-primary bg-primary text-white"
-                            : "border-brand-100 bg-white text-brand-900 hover:bg-brand-50")
-                        }
                       >
-                        {value} {plansDurationText.months}
+                        {periodLabel(value)}
                       </button>
                     ))}
                   </div>
@@ -797,205 +716,27 @@ export function HomeSections() {
             </div>
           </div>
 
-          <div className="home-plans-panel mt-12 overflow-hidden rounded-[28px] border border-brand-100 bg-white">
-            <div
-              ref={plansTrack}
-              onScroll={updateCenterPlan}
-              className="home-plans-track grid lg:grid-cols-3"
-              data-count={homePlans.length}
-              role="region"
-              aria-label="Care plans"
-              tabIndex={0}
-            >
-              {(plansLoading || plansError || !homePlans.length) && (
-                <p
-                  role="status"
-                  className="col-span-full p-7 text-sm text-slate-600"
-                >
-                  {plansLoading
-                    ? "Loading care plans..."
-                    : plansError || "No care plans are currently available."}
-                </p>
-              )}
-              {homePlans.map((plan, index) => {
-                const planServices = plan.services.length
-                  ? plan.services
-                  : plan.features.map((feature) => ({
-                      name: feature,
-                      is_unlimited: false,
-                      quantity: null,
-                      usage_period: null,
-                    }));
-                const isExpanded = !!expandedPlans[plan.slug];
-                const hiddenCount = Math.max(
-                  planServices.length - VISIBLE_PLAN_SERVICES,
-                  0,
-                );
-                const visibleServices = isExpanded
-                  ? planServices
-                  : planServices.slice(0, VISIBLE_PLAN_SERVICES);
-                return (
-                <article
-                  key={plan.name}
-                  data-centered={centerPlan === index}
-                  data-featured={plan.isFeatured}
-                  className={
-                    "home-plan-card group relative flex flex-col p-7 sm:p-9 lg:p-10 " +
-                    (index !== 2
-                      ? "border-b border-brand-100 lg:border-b-0 lg:border-r"
-                      : "")
-                  }
-                >
-                  <div className="flex items-start justify-between gap-5">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                        {plan.eyebrow}
-                      </p>
-
-                      <h3 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-brand-900">
-                        {plan.name}
-                      </h3>
-                    </div>
-
-                    <span className="text-5xl font-semibold leading-none text-brand-100 transition-colors duration-300 group-hover:text-brand-200">
-                      {plan.number}
-                    </span>
-                  </div>
-
-                  <p className="home-plan-description mt-5 text-sm leading-6 text-slate-600">
-                    {plan.description}
-                  </p>
-
-                  <div className="home-plan-price mt-5 rounded-2xl border border-brand-100 bg-brand-50/75 px-4 py-3.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                      {content.plans.price_label}
-                    </p>
-                    <p className="mt-1.5 text-3xl font-semibold tracking-tight text-brand-900">
-                      {plan.price || "Price pending"}
-                    </p>
-                    <p className="mt-1 text-[11px] font-medium text-slate-500">
-                      {plan.duration || "Duration will be confirmed"}
-                    </p>
-                  </div>
-
-                  <div className="home-plan-divider my-5 h-px bg-brand-100" />
-
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-900">
-                    {content.plans.services_label}
-                  </p>
-
-                  <ul
-                    id={"home-plan-services-" + plan.slug}
-                    className="home-plan-services mt-3 space-y-2.5"
-                  >
-                    {visibleServices.map((service) => (
-                      <li
-                        key={service.name}
-                        className="rounded-2xl border border-brand-100 bg-white px-3 py-2.5 text-sm text-slate-600"
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-50 text-primary">
-                            <Check
-                              size={13}
-                              strokeWidth={2}
-                              aria-hidden="true"
-                            />
-                          </span>
-                          <div>
-                            <p className="font-semibold text-brand-900">
-                              {service.name}
-                            </p>
-                            <p className="mt-1 text-[11px] text-slate-400">
-                              {service.is_unlimited
-                                ? "Unlimited"
-                                : service.quantity
-                                  ? service.quantity + " included"
-                                  : "Included"}
-                              {service.usage_period
-                                ? " per " +
-                                  service.usage_period.replace(/_/g, " ")
-                                : ""}
-                            </p>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {hiddenCount > 0 && (
-                    <button
-                      type="button"
-                      aria-expanded={isExpanded}
-                      aria-controls={"home-plan-services-" + plan.slug}
-                      onClick={() =>
-                        setExpandedPlans((current) => ({
-                          ...current,
-                          [plan.slug]: !current[plan.slug],
-                        }))
-                      }
-                      className="home-plan-toggle mt-2 inline-flex w-fit items-center gap-1 text-xs font-semibold text-primary"
-                    >
-                      {isExpanded
-                        ? "Show less"
-                        : `Show ${hiddenCount} more service${hiddenCount > 1 ? "s" : ""}`}
-                      <ChevronDown
-                        size={14}
-                        aria-hidden="true"
-                        className={
-                          "transition-transform " +
-                          (isExpanded ? "rotate-180" : "")
-                        }
-                      />
-                    </button>
-                  )}
-
-                  {plan.features.length > 0 && plan.services.length > 0 && (
-                    <div className="home-plan-benefits mt-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-900">
-                        {content.plans.benefits_label}
-                      </p>
-                      <div className="mt-2.5 flex flex-wrap gap-2">
-                        {plan.features.map((feature) => (
-                          <span
-                            key={feature}
-                            className="rounded-full bg-brand-50 px-3 py-1.5 text-[11px] font-semibold text-primary"
-                          >
-                            {feature}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="home-plan-action mt-auto pt-6">
-                    <Link
-                      to={
-                        plan.priceId
-                          ? "/customer/checkout?plan=" +
-                            encodeURIComponent(plan.slug) +
-                            "&price=" +
-                            plan.priceId
-                          : content.plans.button_url
-                      }
-                      aria-label={`Choose ${plan.name} plan`}
-                      className="group/button flex items-center justify-between border-t border-brand-100 pt-5 text-sm font-semibold text-primary"
-                    >
-                      {content.plans.choose_label} {plan.name}
-                      <span className="grid size-9 place-items-center rounded-full bg-brand-50 transition-all duration-300 group-hover/button:bg-primary group-hover/button:text-#147f79">
-                        <ArrowUpRight
-                          size={16}
-                          strokeWidth={1.8}
-                          aria-hidden="true"
-                        />
-                      </span>
-                    </Link>
-                  </div>
-                </article>
-                );
-              })}
+          <div className="mt-12">
+            {(plansLoading || plansError || !dynamicPlans.length) && (
+              <p role="status" className="rounded-[24px] border border-brand-100 bg-white p-7 text-sm text-slate-600">
+                {plansLoading
+                  ? "Loading care plans..."
+                  : plansError || "No care plans are currently available."}
+              </p>
+            )}
+            <div className="membership-grid" data-count={dynamicPlans.length} role="region" aria-label="Care plans">
+              {dynamicPlans.map((plan) => (
+                <MembershipPlanCard
+                  key={plan.id}
+                  plan={plan}
+                  price={plan.prices.find((price) => price.duration_months === selectedDuration) ?? plan.prices[0]}
+                  popularLabel="Most popular"
+                  chooseLabel={content.plans.choose_label}
+                />
+              ))}
             </div>
 
-            <div className="flex flex-col gap-5 border-t border-brand-100 bg-brand-50/60 px-7 py-6 sm:px-9 lg:flex-row lg:items-center lg:justify-between lg:px-10">
+            <div className="mt-10 flex flex-col gap-5 rounded-[28px] border border-brand-100 bg-white px-7 py-6 sm:px-9 lg:flex-row lg:items-center lg:justify-between lg:px-10">
               <div className="flex items-start gap-3">
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-primary">
                   <HeartHandshake
