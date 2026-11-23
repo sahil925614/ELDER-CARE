@@ -1,17 +1,53 @@
 /* Senior care membership plan cards. Each card takes its colour from the plan's highlight colour (--plan). */
+/* Layout:
+   - phones (< 720px): horizontal swipe slider, next card peeks in
+   - tablets / small laptops (720-1179px): two columns, an odd last card is centred
+   - desktop (>= 1180px): one row for up to 4 plans, 3 per row for more */
 .membership-grid {
   display: grid;
   gap: 18px;
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
 }
+@media (max-width: 719px) {
+  .membership-grid {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    /* Room for the "Most popular" ribbon and the card shadow, which the
+       scrolling track would otherwise clip. */
+    padding: 20px 2px 26px;
+    margin-block: -20px -26px;
+  }
+  .membership-grid::-webkit-scrollbar { display: none; }
+  .membership-grid > .membership-card {
+    flex: 0 0 86%;
+    scroll-snap-align: center;
+  }
+  .membership-grid[data-count="1"] > .membership-card { flex-basis: 100%; }
+  /* No lift-on-hover inside the slider (it would be clipped). */
+  .membership-grid > .membership-card:hover { transform: none; }
+}
 @media (min-width: 720px) {
-  .membership-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Extra row gap leaves room for the "Most popular" ribbon on a second row. */
+  .membership-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 34px; }
+  .membership-grid[data-count="1"] { grid-template-columns: minmax(0, 420px); justify-content: center; }
+}
+@media (min-width: 720px) and (max-width: 1179px) {
+  /* Odd number of plans: centre the last card instead of leaving a gap. */
+  .membership-grid:is([data-count="3"], [data-count="5"], [data-count="7"]) > .membership-card:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc(50% - 9px);
+  }
 }
 @media (min-width: 1180px) {
-  .membership-grid[data-count="4"],
-  .membership-grid[data-count="3"] { grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); }
-  .membership-grid[data-count="3"] { --cols: 3; }
+  .membership-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .membership-grid[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .membership-grid[data-count="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 .membership-card {
@@ -203,7 +239,3 @@
 .membership-period button[aria-pressed="true"] { background: var(--primary-color, #176b67); color: #fff; }
 .membership-period button:hover:not([aria-pressed="true"]) { background: #f1f5f9; }
 
-/* Four cards get a little more room than the text column so the plan names stay on one line. */
-@media (min-width: 1500px) {
-  .membership-grid[data-count="4"] { margin-inline: -36px; }
-}

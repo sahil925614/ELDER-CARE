@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link, useLocation, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { Activity, ArrowUpRight, CalendarDays, HeartHandshake, House, MapPin, MessageCircle, RotateCw, Stethoscope } from 'lucide-react';
 import { defaultDoctorsSections, usePublicProfessionals, type DoctorsPageContent, type PublicProfessional } from '@/features/cms/doctorsPage';
@@ -59,7 +60,8 @@ export function DoctorsPage() {
     </section>
     <section id="care-disciplines" className="scroll-mt-28" aria-busy={directory.loading}>
       <p className="section-eyebrow">{sections.disciplines.label}</p><h2 className="section-title">{sections.disciplines.title}</h2>
-      {(directory.loading || directory.error || !directory.types.length) && <div role="status" className="flex items-center gap-3 py-6 text-sm text-slate-600">
+      {directory.loading && <SiteLoader label={sections.disciplines.loading_text} />}
+      {!directory.loading && (directory.error || !directory.types.length) && <div role="status" className="flex items-center gap-3 py-6 text-sm text-slate-600">
         {directory.loading ? sections.disciplines.loading_text : directory.error ? sections.directory.error_text : sections.disciplines.empty_text}
       </div>}
       <div className="mt-9 grid gap-6 md:grid-cols-3">{directory.types.map(item => {
@@ -83,7 +85,8 @@ export function DoctorsPage() {
         {directory.types.map(item => <button key={item.id} type="button" className="extra-chip" aria-pressed={String(item.id) === type} onClick={() => filter(item.id)}>{item.title}</button>)}
       </div>}
       <p className="sr-only" role="status">{visible.length} professionals shown</p>
-      {(directory.loading || directory.error || !visible.length) && <div role="status" className="mt-9 flex min-h-[160px] items-center gap-3 text-sm text-slate-600">
+      {directory.loading && <SiteLoader label={sections.directory.loading_text} className="mt-9" />}
+      {!directory.loading && (directory.error || !visible.length) && <div role="status" className="mt-9 flex min-h-[160px] items-center gap-3 text-sm text-slate-600">
         {directory.loading ? sections.directory.loading_text : directory.error ? sections.directory.error_text : sections.directory.empty_text}
         {directory.error && <button type="button" onClick={directory.retry} title="Retry loading care experts" aria-label="Retry loading care experts" className="flex size-11 shrink-0 items-center justify-center rounded-full border border-brand-200 bg-white text-primary"><RotateCw size={18} aria-hidden="true" /></button>}
       </div>}

@@ -1,4 +1,5 @@
 import { ContentImage } from "./components/ContentImage";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import bannerImage from "@/assets/careplan.webp";
 
 import { useEffect, useState } from "react";
@@ -114,11 +115,7 @@ export function PlansPage() {
           </div>
         </div>
 
-        {loading && (
-          <div className="mt-10 rounded-[24px] border border-brand-100 bg-white p-7 text-sm text-slate-500">
-            <span role="status">{sections.catalogue.loading_text}</span>
-          </div>
-        )}
+        {loading && <SiteLoader label={sections.catalogue.loading_text} className="mt-10" />}
 
         {!loading && (error || !plans.length) && (
           <div className="mt-10 flex items-center gap-3 rounded-[24px] border border-brand-100 bg-white p-7 text-sm text-slate-500" role="status">

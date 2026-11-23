@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import "./HomePlansCarousel.css";
 import { AddOnServiceSlider } from "./AddOnServiceSlider";
 import { ContentImage } from "./ContentImage";
@@ -121,7 +122,6 @@ export function HomeSections() {
         })
         .catch(() => {
           if (active && current === revision) {
-            setDynamicPlans([]);
             setPlansError(
               "Care plans could not be loaded. Please try again later.",
             );
@@ -152,7 +152,6 @@ export function HomeSections() {
         })
         .catch(() => {
           if (active && current === revision) {
-            setServices([]);
             setServicesError(
               "Services could not be loaded. Please try again later.",
             );
@@ -238,11 +237,13 @@ export function HomeSections() {
             </Link>
           </div>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {(servicesLoading || servicesError || !services.length) && (
+            {/* Loader only on the first load; background refreshes keep the cards. */}
+            {servicesLoading && !services.length && (
+              <SiteLoader label="Loading services..." className="col-span-full" />
+            )}
+            {!servicesLoading && !services.length && (
               <p role="status" className="text-sm text-slate-600">
-                {servicesLoading
-                  ? "Loading services..."
-                  : servicesError || "No services are currently available."}
+                {servicesError || "No services are currently available."}
               </p>
             )}
             {services.map((service, index) => {
@@ -717,11 +718,11 @@ export function HomeSections() {
           </div>
 
           <div className="mt-12">
-            {(plansLoading || plansError || !dynamicPlans.length) && (
+            {/* Loader only on the first load; background refreshes keep the cards. */}
+            {plansLoading && !dynamicPlans.length && <SiteLoader label="Loading care plans..." />}
+            {!plansLoading && !dynamicPlans.length && (
               <p role="status" className="rounded-[24px] border border-brand-100 bg-white p-7 text-sm text-slate-600">
-                {plansLoading
-                  ? "Loading care plans..."
-                  : plansError || "No care plans are currently available."}
+                {plansError || "No care plans are currently available."}
               </p>
             )}
             <div className="membership-grid" data-count={dynamicPlans.length} role="region" aria-label="Care plans">

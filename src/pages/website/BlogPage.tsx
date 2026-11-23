@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, RefreshCw, Search, X } from 'lucide-react';
 import DOMPurify from 'dompurify';
@@ -52,7 +53,7 @@ export function BlogPage() {
       </div>}
       <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_310px] lg:gap-14">
         <div className={isArticle ? 'min-w-0' : 'order-2 min-w-0 lg:order-1'} aria-busy={journal.loading}>
-          {journal.loading ? <p role="status" className="border-y border-brand-100 py-14 text-slate-500">{isArticle ? content.article.loading_text : content.journal.loading_text}</p>
+          {journal.loading ? <SiteLoader label={isArticle ? content.article.loading_text : content.journal.loading_text} className="border-y border-brand-100" />
             : journal.error ? <div className="border-y border-brand-100 py-14">
               {journal.missing && <h1 className="text-3xl font-semibold text-brand-900">{content.article.missing_title}</h1>}
               <p role="alert" className="mt-3 leading-7 text-slate-600">{journal.missing ? content.article.missing_text : isArticle ? content.article.error_text : content.journal.error_text}</p>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, HeartHandshake } from "lucide-react";
 import type { PlanCatalogItem } from "@/features/plans/planCatalog";
@@ -73,7 +74,8 @@ export function AddOnServiceSlider({ services, loading, error }: { services: Add
       }}
     >
       <div ref={trackRef}>
-        {(loading || error || !services.length) && <p role="status" className="py-6 text-sm text-slate-600">{loading ? 'Loading services...' : error || 'No additional services are currently available.'}</p>}
+        {loading && !services.length && <SiteLoader label="Loading services..." className="site-loader-sm" />}
+        {!loading && (error || !services.length) && <p role="status" className="py-6 text-sm text-slate-600">{error || 'No additional services are currently available.'}</p>}
         {(reducedMotion || focused || services.length < 4 ? [0] : [0, 1]).map((copy) => (
           <div key={copy} aria-hidden={copy === 1 ? true : undefined}>
             {services.map((service) => (

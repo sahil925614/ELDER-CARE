@@ -1,0 +1,76 @@
+.site-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 180px;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--primary-color, #147f79);
+}
+.site-loader-mark {
+  width: 64px;
+  height: 56px;
+  overflow: visible;
+}
+/* Soft heart that beats like a pulse. */
+.site-loader-heart {
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: site-loader-beat 1.6s ease-in-out infinite;
+}
+/* Heartbeat line that draws across and fades out, then repeats. */
+.site-loader-pulse {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: site-loader-trace 1.6s ease-in-out infinite;
+}
+.site-loader-label {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+/* Compact version for small spaces (lists, sliders). */
+.site-loader.site-loader-sm {
+  flex-direction: row;
+  min-height: 0;
+  padding: 20px 0;
+  gap: 10px;
+}
+.site-loader.site-loader-sm .site-loader-mark {
+  width: 32px;
+  height: 28px;
+}
+@keyframes site-loader-beat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.08); }
+  28% { transform: scale(0.98); }
+  42% { transform: scale(1.05); }
+  60% { transform: scale(1); }
+}
+@keyframes site-loader-trace {
+  0% { stroke-dashoffset: 100; opacity: 1; }
+  60% { stroke-dashoffset: 0; opacity: 1; }
+  85%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-loader-heart { animation: none; }
+  .site-loader-pulse {
+    stroke-dashoffset: 0;
+    animation: site-loader-fade 1.6s ease-in-out infinite;
+  }
+  @keyframes site-loader-fade {
+    50% { opacity: 0.35; }
+  }
+}

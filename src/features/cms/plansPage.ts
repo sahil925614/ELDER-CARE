@@ -105,7 +105,8 @@ export function usePlansCatalogue(currency: string) {
         if (!Array.isArray(response.plans)) throw new Error('Invalid plans catalogue');
         if (active && current === requestRevision) setResult({ plans: response.plans, currency, revision, error: false });
       } catch {
-        if (active && current === requestRevision) setResult({ plans: [], currency, revision, error: true });
+        // A failed background refresh keeps the plans already on screen.
+        if (active && current === requestRevision) setResult(previous => previous && previous.currency === currency && previous.revision === revision && previous.plans.length ? previous : { plans: [], currency, revision, error: true });
       }
     };
     void refresh();
