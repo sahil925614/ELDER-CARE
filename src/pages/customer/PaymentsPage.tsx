@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -253,10 +254,7 @@ export function PaymentsPage() {
         </div>
 
         {loading && (
-          <div className="flex items-center gap-3 p-6 text-sm text-slate-500">
-            <Loader2 className="animate-spin text-primary" size={18} />
-            Loading billing records...
-          </div>
+          <SiteLoader label="Loading billing records..." />
         )}
 
         {!loading && filtered.length > 0 && (

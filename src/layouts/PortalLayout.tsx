@@ -1,4 +1,5 @@
 import "@/styles/customer-theme.css";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -601,9 +602,7 @@ function NotificationBell({ unreadCount }: { unreadCount: number }) {
           </div>
           <div className="max-h-[min(360px,50dvh)] overflow-y-auto overscroll-contain">
             {loading && (
-              <p className="px-5 py-8 text-center text-sm text-slate-500">
-                Loading notifications...
-              </p>
+              <SiteLoader label="Loading notifications..." className="site-loader-sm justify-center" />
             )}
 
             {!loading && notifications.length ? notifications.map((notice) => (

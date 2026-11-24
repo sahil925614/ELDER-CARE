@@ -74,3 +74,10 @@
     50% { opacity: 0.35; }
   }
 }
+/* Customer portal dark mode: lighter teal and label so it stays readable. */
+.customer-dark .site-loader {
+  color: #79dcd0;
+}
+.customer-dark .site-loader-label {
+  color: #9fb3bf;
+}

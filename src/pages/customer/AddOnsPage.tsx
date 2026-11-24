@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { TimeInput } from "@/components/common/TimeInput";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -161,10 +162,7 @@ export function AddOnsPage() {
       )}
 
       {loading && (
-        <div className="flex items-center gap-3 rounded-[24px] border border-brand-100 bg-white p-6 text-sm text-slate-500">
-          <Loader2 className="animate-spin text-primary" size={18} />
-          Loading add-ons...
-        </div>
+        <div className="rounded-[24px] border border-brand-100 bg-white"><SiteLoader label="Loading add-ons..." /></div>
       )}
 
       {!loading && tab === "Explore services" && (
