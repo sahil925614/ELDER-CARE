@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -143,10 +144,7 @@ export function SubscriptionsPage() {
       )}
 
       {loading && (
-        <div className="flex items-center gap-3 rounded-[24px] border border-brand-100 bg-white p-6 text-sm text-slate-500">
-          <Loader2 className="animate-spin text-primary" size={18} />
-          Loading subscriptions...
-        </div>
+        <div className="rounded-[24px] border border-brand-100 bg-white"><SiteLoader label="Loading subscriptions..." /></div>
       )}
 
       {!loading && !subscriptions.length && (

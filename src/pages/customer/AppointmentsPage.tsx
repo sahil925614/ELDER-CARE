@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import type { FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -295,10 +296,7 @@ export function AppointmentsPage() {
         </select>
       </div>
       {loading ? (
-        <p className="flex items-center gap-2 py-8 text-sm text-slate-500">
-          <Loader2 size={18} className="animate-spin" />
-          Loading visits...
-        </p>
+        <SiteLoader label="Loading visits..." />
       ) : appointments.length ? (
         <div className="divide-y divide-brand-100 border-y border-brand-100 bg-white">
           {appointments.map((visit) => (
@@ -507,10 +505,7 @@ function BookingModal({
             />
           </label>
           {loading && (
-            <p className="flex items-center gap-2 text-xs text-slate-500">
-              <Loader2 size={15} className="animate-spin" />
-              Checking service availability...
-            </p>
+            <SiteLoader label="Checking service availability..." className="site-loader-sm" />
           )}
           {options.length > 0 && (
             <>
@@ -787,10 +782,7 @@ function DetailModal({
       onClose={busy ? () => {} : onClose}
     >
       {loading ? (
-        <p className="flex items-center gap-2 text-sm">
-          <Loader2 size={17} className="animate-spin" />
-          Loading appointment...
-        </p>
+        <SiteLoader label="Loading appointment..." />
       ) : (
         detail && (
           <>

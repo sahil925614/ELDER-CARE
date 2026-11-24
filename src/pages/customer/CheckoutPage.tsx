@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import type { ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -191,10 +192,7 @@ export function CheckoutPage() {
       )}
 
       {loading ? (
-        <div className="flex items-center gap-3 rounded-[24px] border border-brand-100 bg-white p-6 text-sm text-slate-500">
-          <Loader2 className="animate-spin text-primary" size={18} />
-          Loading checkout options...
-        </div>
+        <div className="rounded-[24px] border border-brand-100 bg-white"><SiteLoader label="Loading checkout options..." /></div>
       ) : (
         <section className="grid gap-6 xl:grid-cols-[0.9fr_0.55fr]">
           <div className="rounded-[28px] border border-brand-100 bg-white p-5 sm:p-7">

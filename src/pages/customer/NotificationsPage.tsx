@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link } from "react-router-dom";
 
 import {
@@ -6,7 +7,6 @@ import {
   Check,
   CheckCheck,
   Inbox,
-  Loader2,
   ArrowUpRight,
 } from "lucide-react";
 
@@ -135,10 +135,7 @@ export function NotificationsPage() {
       )}
 
       {loading && (
-        <div className="flex items-center gap-3 rounded-[24px] border border-brand-100 bg-white p-6 text-sm text-slate-500">
-          <Loader2 className="animate-spin text-primary" size={18} />
-          Loading notifications...
-        </div>
+        <div className="rounded-[24px] border border-brand-100 bg-white"><SiteLoader label="Loading notifications..." /></div>
       )}
 
       {!loading && visible.length > 0 && (

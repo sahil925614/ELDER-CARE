@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { SiteLoader } from "@/components/common/SiteLoader";
 import { useEffect, useState } from "react";
 import { formatTimeRange } from '@/utils/time';
 import {
@@ -10,7 +11,6 @@ import {
   Bell,
   Clock3,
   Check,
-  Loader2,
   RefreshCw,
 } from "lucide-react";
 
@@ -585,10 +585,7 @@ export function DashboardPage() {
 
           <div>
             {loading && (
-              <div className="flex items-center gap-3 px-6 py-6 text-sm text-slate-500 sm:px-7">
-                <Loader2 className="animate-spin text-primary" size={17} />
-                Loading appointments...
-              </div>
+              <SiteLoader label="Loading appointments..." className="site-loader-sm justify-center" />
             )}
 
             {!loading && !error && upcomingAppointments.length === 0 && (
@@ -685,7 +682,7 @@ export function DashboardPage() {
           </div>
 
           <div className="mt-6">
-            {loading && <p className="flex items-center gap-2 text-sm text-slate-500"><Loader2 size={17} className="animate-spin text-primary" />Loading updates...</p>}
+            {loading && <SiteLoader label="Loading updates..." className="site-loader-sm" />}
             {!loading && error && !dashboard && <p className="text-sm text-slate-500">Updates could not be loaded.</p>}
             {dynamicNotices.slice(0, 3).map((notice, index) => (
               <div
