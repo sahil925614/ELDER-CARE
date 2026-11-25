@@ -81,12 +81,24 @@
   color: var(--primary-color, #176b67);
 }
 
+/* Plan cards keep a fixed width and are centred, so 1, 2, 3 or 4 plans all
+   look balanced (a single plan no longer stretches across the section).
+   Phones: full width, one per row. */
 .service-detail__plan-list {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 16px;
   margin: 34px auto 0;
   max-width: 1000px;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+.service-detail__plan-list > .service-detail__plan {
+  flex: 1 1 100%;
+}
+@media (min-width: 640px) {
+  .service-detail__plan-list > .service-detail__plan {
+    flex: 0 1 236px;
+  }
 }
 .service-detail__plan {
   display: flex;
@@ -104,3 +116,44 @@
 .service-detail__plan small { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 13px; color: #64748b; }
 
 .service-detail__related { display: flex; flex-direction: column; text-decoration: none; }
+
+/* ---------- Responsive ---------- */
+
+/* Tablet: "At a glance" facts side by side instead of one long list. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .service-detail__card dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0 24px;
+  }
+}
+
+/* "Other services you may need":
+   phones/tablets = swipe slider (next card peeks in), laptops = 3 columns. */
+.service-detail__related-list {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.service-detail__related-list::-webkit-scrollbar { display: none; }
+.service-detail__related-list > .service-detail__related {
+  flex: 0 0 84%;
+  scroll-snap-align: start;
+}
+.service-detail__related-list[data-count="1"] > .service-detail__related { flex-basis: 100%; }
+@media (min-width: 640px) {
+  .service-detail__related-list > .service-detail__related { flex-basis: 44%; }
+  .service-detail__related-list[data-count="1"] > .service-detail__related { flex-basis: 100%; }
+}
+@media (min-width: 1024px) {
+  .service-detail__related-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    overflow: visible;
+  }
+}

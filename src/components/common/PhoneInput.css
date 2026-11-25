@@ -1,4 +1,50 @@
 /* Make the phone box as wide as the other fields and keep the country list above everything. */
 .phone-input .iti { display: block; width: 100%; }
+/* The library forces margin: 0 on the input, so the gap under the label
+   (8px on the other fields) is added on the box around it instead.
+   Without it the focus outline touches the "Phone" label. */
+.phone-input .iti { margin-top: 0.5rem; }
 .iti--container { z-index: 2000; }
 .phone-input .iti__selected-dial-code { color: inherit; }
+
+/* Country list: rounded panel with a clean search box (with icon). */
+.phone-input .iti__dropdown-content {
+  margin-top: 6px;
+  overflow: hidden;
+  border: 1px solid var(--theme-light, #d5f0ec);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgb(15 23 42 / 12%);
+}
+.phone-input .iti__search-input {
+  display: block;
+  width: calc(100% - 16px);
+  margin: 8px;
+  padding: 9px 12px 9px 34px;
+  border: 1px solid var(--theme-light, #d5f0ec);
+  border-radius: 10px;
+  background: #f8fbfb url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 11px center;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.phone-input .iti__search-input::placeholder {
+  color: #94a3b8;
+}
+.phone-input .iti__search-input:focus {
+  border-color: var(--primary-color, #147f79);
+  background-color: #fff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #147f79) 15%, transparent);
+}
+.phone-input .iti__country-list {
+  max-height: 220px;
+  padding: 0 6px 6px;
+}
+.phone-input .iti__country {
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.phone-input .iti__country.iti__highlight {
+  background: var(--theme-bg, #effafa);
+}

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SiteLoader } from "@/components/common/SiteLoader";
 import "./HomePlansCarousel.css";
 import { AddOnServiceSlider } from "./AddOnServiceSlider";
-import { ContentImage } from "./ContentImage";
+import { HomeServicesSlider } from "./HomeServicesSlider";
 import { Link, useOutletContext } from "react-router-dom";
 import { apiRequest } from "@/services/api/client";
 import type { HomePageContent } from "@/features/cms/websitePages";
@@ -20,8 +20,6 @@ import { MembershipPlanCard } from "./MembershipPlanCard";
 import {
   ArrowUpRight,
   HeartHandshake,
-  Stethoscope,
-  Activity,
   House,
   CalendarDays,
   Layers,
@@ -146,9 +144,22 @@ export function HomeSections() {
       const current = ++revision;
       setServicesLoading(true);
       setServicesError("");
-      void apiRequest<{ services: HomeService[] }>("website/home-services")
+      // Full service catalogue (not only the 4 home-services), each card
+      // linking to its own service page instead of the enquiry form.
+      void apiRequest<{ services: Array<{ id: number; name: string; slug: string; text: string; image_url: string | null; image_alt?: string | null; icon?: string | null }> }>("website/services")
         .then((data) => {
-          if (active && current === revision) setServices(data?.services ?? []);
+          if (active && current === revision)
+            setServices(
+              (data?.services ?? []).map((service) => ({
+                id: service.id,
+                name: service.name,
+                text: service.text,
+                image_url: service.image_url,
+                image_alt: service.image_alt ?? null,
+                icon: service.icon ?? null,
+                url: "/services/" + encodeURIComponent(service.slug),
+              })),
+            );
         })
         .catch(() => {
           if (active && current === revision) {
@@ -236,85 +247,14 @@ export function HomeSections() {
               {content.services.button_label} <ArrowUpRight size={18} />
             </Link>
           </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Loader only on the first load; background refreshes keep the cards. */}
-            {servicesLoading && !services.length && (
-              <SiteLoader label="Loading services..." className="col-span-full" />
-            )}
-            {!servicesLoading && !services.length && (
-              <p role="status" className="text-sm text-slate-600">
-                {servicesError || "No services are currently available."}
-              </p>
-            )}
-            {services.map((service, index) => {
-              const Icon = [Stethoscope, HeartHandshake, Activity, House][
-                index % 4
-              ];
-              return (
-                <Link
-                  key={service.id}
-                  to={service.url}
-                  aria-label={`Explore ${service.name}`}
-                  className="group relative flex min-h-full flex-col overflow-hidden rounded-[24px] border border-brand-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-[0_18px_45px_rgba(20,127,121,0.10)]"
-                >
-                  {/* =========================
-          IMAGE
-      ========================== */}
-                  <div className="relative h-[205px] overflow-hidden">
-                    <ContentImage
-                      key={service.image_url}
-                      name={service.name}
-                      src={service.image_url}
-                      alt={service.name}
-                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                    />
-
-                    {/* subtle gradient */}
-                    <div
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-900/10 via-transparent to-transparent"
-                    />
-                  </div>
-
-                  {/* =========================
-          ICON
-      ========================== */}
-                  <div className="relative z-10 -mt-7 px-6">
-                    <span className="grid size-14 place-items-center rounded-2xl border-[5px] border-white bg-brand-50 text-primary shadow-sm transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
-                      <Icon size={23} strokeWidth={1.5} aria-hidden="true" />
-                    </span>
-                  </div>
-
-                  {/* =========================
-          CONTENT
-      ========================== */}
-                  <div className="flex flex-1 flex-col px-6 pb-6 pt-4">
-                    <h3 className="text-lg font-semibold tracking-[-0.01em] text-brand-900 transition-colors group-hover:text-primary">
-                      {service.name}
-                    </h3>
-
-                    <p className="mt-3 text-sm leading-6 text-slate-600">
-                      {service.text}
-                    </p>
-
-                    {/* pushes CTA to bottom */}
-                    <div className="mt-auto pt-6">
-                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                        {content.services.item_label}
-                        <span className="grid size-7 place-items-center rounded-full bg-brand-50 transition-all duration-300 group-hover:bg-primary group-hover:text-white">
-                          <ArrowUpRight
-                            size={14}
-                            strokeWidth={1.8}
-                            aria-hidden="true"
-                          />
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          {/* Loader only on the first load; background refreshes keep the cards. */}
+          {servicesLoading && !services.length && <SiteLoader label="Loading services..." className="mt-10" />}
+          {!servicesLoading && !services.length && (
+            <p role="status" className="mt-10 text-sm text-slate-600">
+              {servicesError || "No services are currently available."}
+            </p>
+          )}
+          {services.length > 0 && <HomeServicesSlider services={services} itemLabel={content.services.item_label} />}
         </div>
       </section>
 

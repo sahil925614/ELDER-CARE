@@ -1,0 +1,56 @@
+.home-services-track {
+  --per-view: 1.15;
+  --gap: 16px;
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* room for the hover shadow, which the scroll box would clip */
+  padding: 4px 2px 22px;
+  margin: -4px -2px -22px;
+}
+.home-services-track::-webkit-scrollbar { display: none; }
+.home-services-track:focus-visible { outline: 2px solid var(--primary-color, #147f79); outline-offset: 4px; border-radius: 24px; }
+.home-service-card {
+  flex: 0 0 calc((100% - (var(--per-view) - 1) * var(--gap)) / var(--per-view));
+  min-width: 0;
+  scroll-snap-align: start;
+}
+/* Same text height on every card so the "Explore" links line up. */
+.home-service-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(1.5rem * 2);
+}
+@media (min-width: 640px) { .home-services-track { --per-view: 2; --gap: 20px; } }
+@media (min-width: 1024px) { .home-services-track { --per-view: 3; } }
+@media (min-width: 1280px) { .home-services-track { --per-view: 4; } }
+
+.home-services-nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+.home-services-nav button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--theme-light, #d5f0ec);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--primary-color, #147f79);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.home-services-nav button:hover:not(:disabled) {
+  border-color: var(--primary-color, #147f79);
+  background: var(--primary-color, #147f79);
+  color: #fff;
+}
+.home-services-nav button:disabled { opacity: 0.4; cursor: default; }

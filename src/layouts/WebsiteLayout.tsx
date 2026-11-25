@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { WebsiteSmoothScroll } from "@/components/common/WebsiteSmoothScroll";
 import { WebsiteSeo } from '@/features/seo/WebsiteSeo'
+import { PageSeoContext } from '@/features/seo/PageSeoContext'
+import type { SeoSettings } from '@/features/seo/settings'
 import { useContentMotion } from "@/pages/website/components/useContentMotion";
 import { ScrollToTop } from "@/components/common/ScrollToTop";
 import { FloatingActions } from "@/components/common/FloatingActions";
@@ -41,6 +44,8 @@ export function WebsiteLayout() {
   const faqsPage = useInformationPageContent('faqs', pathname === '/faqs');
   const privacyPage = useInformationPageContent('privacy-policy', pathname === '/privacy-policy');
   const termsPage = useInformationPageContent('terms', pathname === '/terms');
+  // Title/description set by a single page (service or plan details).
+  const [pageSeoOverride, setPageSeoOverride] = useState<Partial<SeoSettings> | null>(null);
   const hasPhotoBanner = [
     "/about",
     "/services",
@@ -59,11 +64,12 @@ export function WebsiteLayout() {
     "/become-a-partner",
   ].includes(pathname) || isBlog || pathname.startsWith('/plans/') || pathname.startsWith('/services/');
   return (
+    <PageSeoContext.Provider value={setPageSeoOverride}>
     <div className="relative flex min-h-screen flex-col">
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
-      <WebsiteSeo override={isBlog ? blogSeo(blogPage, blogJournal, blogArticle, search) : homePage?.seo ?? aboutPage?.seo ?? howItWorksPage?.seo ?? testimonialsPage?.seo ?? servicesPage?.seo ?? addonsPage?.seo ?? plansPage?.seo ?? doctorsPage?.seo ?? faqsPage?.seo ?? privacyPage?.seo ?? termsPage?.seo ?? enquiryPage?.seo ?? contactPage?.seo} />
+      <WebsiteSeo override={{ ...(isBlog ? blogSeo(blogPage, blogJournal, blogArticle, search) : homePage?.seo ?? aboutPage?.seo ?? howItWorksPage?.seo ?? testimonialsPage?.seo ?? servicesPage?.seo ?? addonsPage?.seo ?? plansPage?.seo ?? doctorsPage?.seo ?? faqsPage?.seo ?? privacyPage?.seo ?? termsPage?.seo ?? enquiryPage?.seo ?? contactPage?.seo), ...pageSeoOverride }} />
       <ScrollToTop />
       <WebsiteSmoothScroll />
       <Header overlay={isHome || hasPhotoBanner} />
@@ -83,5 +89,6 @@ export function WebsiteLayout() {
       <Footer />
       <FloatingActions key={pathname} />
     </div>
+    </PageSeoContext.Provider>
   );
 }
