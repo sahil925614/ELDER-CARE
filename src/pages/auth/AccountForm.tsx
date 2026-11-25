@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, ArrowUpRight, CircleAlert, CircleCheck } from "lucide-react";
 import { ApiError } from "@/services/api/client";
+import { PhoneInput } from "@/components/common/PhoneInput";
 import {
   loginCustomer,
   registerCustomer,
@@ -149,7 +150,7 @@ export function AccountForm({
           {register && (
             <label className="extra-label">
               Phone number (optional)
-              <input className="extra-field" type="tel" name="phone" autoComplete="tel" maxLength={25} />
+              <PhoneInput name="phone" className="extra-field" />
             </label>
           )}
 

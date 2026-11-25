@@ -23,6 +23,7 @@ import {
 import type { CustomerElder } from "@/features/auth/customerAuth";
 import { ApiError } from "@/services/api/client";
 import { env } from "@/config/env";
+import { PhoneInput } from "@/components/common/PhoneInput";
 import { AddressFields } from "./components/AddressFields";
 import { EmptyState, Modal, PageHeading } from "./components/PortalUi";
 
@@ -465,14 +466,18 @@ function Field({
   return (
     <label className={"portal-label " + (wide ? "sm:col-span-2" : "")}>
       {label}
-      <input
-        name={name}
-        type={type}
-        required={required}
-        max={max}
-        defaultValue={value || ""}
-        className="portal-input"
-      />
+      {type === "tel" ? (
+        <PhoneInput name={name} defaultValue={value} required={required} className="portal-input" />
+      ) : (
+        <input
+          name={name}
+          type={type}
+          required={required}
+          max={max}
+          defaultValue={value || ""}
+          className="portal-input"
+        />
+      )}
     </label>
   );
 }

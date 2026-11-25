@@ -6,6 +6,7 @@ export interface AddressSuggestion {
   city: string;
   state: string;
   country: string;
+  country_code?: string;
   postcode: string;
   lat: number;
   lng: number;

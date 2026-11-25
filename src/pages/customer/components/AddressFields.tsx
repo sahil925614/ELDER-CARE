@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { MapPin } from "lucide-react";
 import { searchAddresses } from "@/features/geo/addressSearch";
+import { countryNameFor } from "@/features/geo/countries";
+import { CountrySelect } from "@/components/common/CountrySelect";
 import type { AddressSuggestion } from "@/features/geo/addressSearch";
 
 interface AddressValues {
@@ -73,7 +75,7 @@ export function AddressFields({ values }: { values?: AddressValues }) {
       address: item.address || item.label,
       city: item.city || current.city,
       state: item.state || current.state,
-      country: item.country || current.country,
+      country: countryNameFor(item.country_code, item.country) || current.country,
       zip_code: item.postcode || current.zip_code,
     }));
     setPosition({ lat: item.lat, lng: item.lng });
@@ -151,11 +153,15 @@ export function AddressFields({ values }: { values?: AddressValues }) {
       </label>
       <label className="portal-label">
         Country
-        <input
+        <CountrySelect
           name="country"
           required
           value={form.country}
-          onChange={change("country")}
+          onChange={(event) => {
+            const value = event.target.value;
+            setForm((current) => ({ ...current, country: value }));
+            setPosition(null);
+          }}
           className="portal-input"
         />
       </label>
