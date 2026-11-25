@@ -38,7 +38,15 @@ export function PhoneInput({
   }, [valid, number]);
 
   return (
-    <div className="phone-input">
+    <div
+      className="phone-input"
+      // The field sits inside a <label>: a click in the country list would be
+      // passed on to the flag button and reopen the list straight after a
+      // country is chosen. Stop that label behaviour for clicks in the list.
+      onClick={(event) => {
+        if ((event.target as HTMLElement).closest(".iti__dropdown-content")) event.preventDefault();
+      }}
+    >
       <IntlTelInput
         ref={phoneRef}
         initialValue={(defaultValue ?? "").trim()}
@@ -46,6 +54,7 @@ export function PhoneInput({
         onChangeValidity={setValid}
         initOptions={{
           initialCountry: defaultCountry,
+          i18n: { searchPlaceholder: "Search country or code" },
           separateDialCode: true,
           countrySearch: true,
           nationalMode: true,
