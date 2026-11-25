@@ -1,4 +1,5 @@
 import { Logo } from "@/components/common/Logo";
+import { CurrencySwitcher } from "@/components/common/CurrencySwitcher";
 import { WebsiteAccountMenu } from "@/components/common/WebsiteAccountMenu";
 import { useCustomerSession } from "@/features/auth/useCustomerSession";
 import { useEffect, useRef, useState } from "react";
@@ -180,6 +181,10 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
   const menuButton = useRef<HTMLButtonElement>(null);
   const header = useRef<HTMLElement>(null);
   const closeMenu = () => setOpenForLocation(null);
+  const changeCurrency = (next: CurrencyCode) => {
+    setCurrency(next);
+    setCurrencyPreference(next);
+  };
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -215,7 +220,7 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
         </Link>
         <nav
           aria-label="Main navigation"
-          className="hidden items-center gap-3 xl:flex"
+          className="hidden items-center gap-4 xl:flex min-[1360px]:gap-6 2xl:gap-7"
         >
           {links.map((item) => (
             <NavigationEntry
@@ -226,22 +231,7 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
           ))}
         </nav>
         <div className="hidden shrink-0 items-center gap-3 xl:flex">
-          <label className="sr-only" htmlFor="site-currency">
-            Currency
-          </label>
-          <select
-            id="site-currency"
-            value={currency}
-            onChange={(event) => {
-              const next = event.target.value === "USD" ? "USD" : "INR";
-              setCurrency(next);
-              setCurrencyPreference(next);
-            }}
-            className="rounded-full border border-brand-100 bg-white px-3 py-2 text-xs font-semibold text-brand-700 outline-none transition-colors hover:border-primary focus:border-primary"
-          >
-            <option value="INR">INR</option>
-            <option value="USD">USD</option>
-          </select>
+          <CurrencySwitcher value={currency} onChange={changeCurrency} />
           {token ? <WebsiteAccountMenu key={locationKey + token} customer={customer} onNavigate={closeMenu} /> : <Link to="/login" className="text-sm font-semibold text-brand-700">
             Login
           </Link>}
@@ -271,21 +261,10 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
         className="mt-3 max-h-[70dvh] overflow-y-auto rounded-2xl border border-brand-100 bg-white p-4 shadow-xl xl:hidden"
       >
         {menuOpen && (
-          <label className="mb-3 flex items-center justify-between rounded-xl border border-brand-100 px-4 py-3 text-sm font-semibold text-brand-700">
+          <div className="mb-3 flex items-center justify-between rounded-xl border border-brand-100 px-4 py-3 text-sm font-semibold text-brand-700">
             Currency
-            <select
-              value={currency}
-              onChange={(event) => {
-                const next = event.target.value === "USD" ? "USD" : "INR";
-                setCurrency(next);
-                setCurrencyPreference(next);
-              }}
-              className="rounded-full border border-brand-100 bg-white px-3 py-2 text-xs font-semibold text-brand-700 outline-none"
-            >
-              <option value="INR">INR</option>
-              <option value="USD">USD</option>
-            </select>
-          </label>
+            <CurrencySwitcher value={currency} onChange={changeCurrency} wide />
+          </div>
         )}
         {menuOpen && token && <WebsiteAccountMenu key={locationKey + token + '-mobile'} customer={customer} mobile onNavigate={closeMenu} />}
         {menuOpen &&

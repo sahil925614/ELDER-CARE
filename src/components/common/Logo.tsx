@@ -14,7 +14,11 @@ export function Logo({
     <img
       src={variant === "footer" ? footerLogo : branding.logo_url || logo}
       alt={branding.site_name}
-      className="h-14 w-44 max-w-full object-contain object-left sm:h-16 sm:w-60"
+      className={
+        "h-14 w-44 max-w-full object-contain object-left sm:h-16 sm:w-60" +
+        // Header on 1280-1439px laptops: slightly smaller so the menu fits.
+        (variant === "footer" ? "" : " xl:w-52 min-[1440px]:w-60")
+      }
       onError={(event) => {
         if (
           event.currentTarget.src !==
