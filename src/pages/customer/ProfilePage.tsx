@@ -15,6 +15,8 @@ import {
 import { updateCustomerProfile } from "@/features/auth/customerAuth";
 import { useDemo } from "@/features/customer-portal/demoState";
 import { ApiError } from "@/services/api/client";
+import { PhoneInput } from "@/components/common/PhoneInput";
+import { CountrySelect } from "@/components/common/CountrySelect";
 import { PageHeading } from "./components/PortalUi";
 
 export function ProfilePage() {
@@ -229,13 +231,7 @@ export function ProfilePage() {
 
               <label className="portal-label">
                 Phone
-                <input
-                  name="phone"
-                  type="tel"
-                  maxLength={30}
-                  defaultValue={profile.phone}
-                  className="portal-input"
-                />
+                <PhoneInput name="phone" defaultValue={profile.phone} className="portal-input" />
               </label>
 
               <label className="portal-label">
@@ -270,12 +266,7 @@ export function ProfilePage() {
 
               <label className="portal-label">
                 Country
-                <input
-                  name="country"
-                  maxLength={120}
-                  defaultValue={profile.country}
-                  className="portal-input"
-                />
+                <CountrySelect name="country" defaultValue={profile.country} className="portal-input" />
               </label>
 
               <label className="portal-label">

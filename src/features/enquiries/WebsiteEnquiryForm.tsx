@@ -3,6 +3,7 @@ import type { ContactSectionsContent } from '@/features/cms/contactPage';
 import type { EnquirySectionsContent } from '@/features/cms/enquiryPage';
 import { CmsLink } from '@/features/cms/CmsLink';
 import { useWebsiteEnquiry } from './useWebsiteEnquiry';
+import { PhoneInput } from '@/components/common/PhoneInput';
 import { EnquiryFeedback, EnquiryHoneypot } from './EnquiryFeedback';
 
 const inputClass = 'mt-2 w-full rounded-xl border border-brand-100 bg-white px-4 py-3 text-base font-normal text-slate-800 transition-colors hover:border-brand-200';
@@ -30,7 +31,7 @@ export function WebsiteEnquiryForm(props: Props) {
           <label className="block min-w-0 text-sm font-semibold text-brand-900">{content.email_label}<input name="email" type="email" autoComplete="email" required maxLength={254} className={inputClass} placeholder={content.email_placeholder} {...attributes('email')} />{error('email')}</label>
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
-          <label className="block min-w-0 text-sm font-semibold text-brand-900">{content.phone_label} <span className="font-normal text-slate-500">{content.optional_label}</span><input name="phone" type="tel" autoComplete="tel" maxLength={25} className={inputClass} placeholder={content.phone_placeholder} {...attributes('phone')} />{error('phone')}</label>
+          <label className="block min-w-0 text-sm font-semibold text-brand-900">{content.phone_label} <span className="font-normal text-slate-500">{content.optional_label}</span><PhoneInput name="phone" className={inputClass} />{error('phone')}</label>
           <label className="block min-w-0 text-sm font-semibold text-brand-900">{content.city_label} {!details && <span className="font-normal text-slate-500">{content.optional_label}</span>}<input name={details ? 'location' : 'city'} autoComplete="address-level2" required={Boolean(details)} maxLength={100} className={inputClass} placeholder={content.city_placeholder} {...attributes('city')} />{error('city')}</label>
         </div>
         {details && <label className="block text-sm font-semibold text-brand-900">{details.care_for_label}<select name="careFor" required defaultValue="" className={inputClass} {...attributes('care_for')}>

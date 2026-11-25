@@ -239,3 +239,7 @@
 .membership-period button[aria-pressed="true"] { background: var(--primary-color, #176b67); color: #fff; }
 .membership-period button:hover:not([aria-pressed="true"]) { background: #f1f5f9; }
 
+/* Four cards get a little more room than the text column so the plan names stay on one line. */
+@media (min-width: 1500px) {
+  .membership-grid[data-count="4"] { margin-inline: -36px; }
+}

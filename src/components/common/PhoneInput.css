@@ -1,0 +1,4 @@
+/* Make the phone box as wide as the other fields and keep the country list above everything. */
+.phone-input .iti { display: block; width: 100%; }
+.iti--container { z-index: 2000; }
+.phone-input .iti__selected-dial-code { color: inherit; }
