@@ -30,8 +30,10 @@ export function WebsiteSmoothScroll() {
         syncTouch: false,
         anchors: true,
         allowNestedScroll: false,
+        // Let these scroll on their own (the page must not scroll instead),
+        // including the phone field's country list (inline and mobile popup).
         prevent: (node) => node.matches(
-          'dialog, #mobile-navigation, [aria-label="Additional care services"]',
+          'dialog, #mobile-navigation, [aria-label="Additional care services"], .iti__dropdown-content, .iti__country-list, .iti--container',
         ),
       });
       syncLock();
