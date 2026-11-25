@@ -64,5 +64,7 @@ export interface HomeService {
   name: string;
   text: string;
   image_url: string | null;
+  image_alt?: string | null;
+  icon?: string | null;
   url: string;
 }
