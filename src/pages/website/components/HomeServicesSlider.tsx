@@ -21,6 +21,8 @@ const fallbackIcons = [Stethoscope, HeartHandshake, Activity, House];
 export function HomeServicesSlider({ services, itemLabel }: { services: HomeService[]; itemLabel: string }) {
   const track = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
+  // Auto-play pauses while the visitor hovers, focuses or touches the slider.
+  const [paused, setPaused] = useState(false);
 
   const update = useCallback(() => {
     const el = track.current;
@@ -34,16 +36,38 @@ export function HomeServicesSlider({ services, itemLabel }: { services: HomeServ
     return () => window.removeEventListener("resize", update);
   }, [update, services.length]);
 
-  const move = (direction: 1 | -1) => {
+  const move = useCallback((direction: 1 | -1) => {
     const el = track.current;
     if (!el) return;
     const card = el.querySelector<HTMLElement>(".home-service-card");
     const step = card ? card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "20") : el.clientWidth;
     el.scrollBy({ left: direction * step, behavior: "smooth" });
-  };
+  }, []);
+
+  // Auto-play: one card every 3.5s, back to the start after the last one.
+  // Off for visitors who prefer reduced motion and while the tab is hidden.
+  useEffect(() => {
+    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => {
+      const el = track.current;
+      if (!el || document.hidden) return;
+      if (el.scrollWidth <= el.clientWidth + 4) return;
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 4) el.scrollTo({ left: 0, behavior: "smooth" });
+      else move(1);
+    }, 3500);
+    return () => window.clearInterval(timer);
+  }, [paused, move]);
 
   return (
-    <div className="home-services-slider mt-10">
+    <div
+      className="home-services-slider mt-10"
+      onPointerEnter={(event) => { if (event.pointerType === "mouse") setPaused(true); }}
+      onPointerLeave={(event) => { if (event.pointerType === "mouse") setPaused(false); }}
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => window.setTimeout(() => setPaused(false), 4000)}
+      onFocus={() => setPaused(true)}
+      onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}
+    >
       <div ref={track} className="home-services-track" onScroll={update} role="region" aria-label="Our services" tabIndex={0}>
         {services.map((service, index) => {
           const Icon = (service.icon && icons[service.icon]) || fallbackIcons[index % fallbackIcons.length];
