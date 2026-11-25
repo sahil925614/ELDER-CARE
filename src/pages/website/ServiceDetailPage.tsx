@@ -155,6 +155,7 @@ export function ServiceDetailPage() {
       </section>
 
       <section className="service-detail__plans inner-page-full-width border-y border-brand-100 bg-brand-50/55 py-14 sm:py-16">
+        <div className="page-container">
         <div className="mx-auto max-w-3xl text-center">
           <p className="section-eyebrow">Care plans</p>
           <h2 className="section-title">{service.plans.length ? 'Included in our care plans' : 'Add this service when you need it'}</h2>
@@ -175,6 +176,7 @@ export function ServiceDetailPage() {
             ))}
           </div>
         )}
+        </div>
       </section>
 
       {service.related.length > 0 && (
@@ -183,7 +185,7 @@ export function ServiceDetailPage() {
             <div><p className="section-eyebrow">More support</p><h2 className="section-title">Other services you may need</h2></div>
             <Link to="/services" className="text-link">All services <ArrowUpRight size={17} aria-hidden="true" /></Link>
           </div>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <div className="service-detail__related-list mt-8" data-count={service.related.length}>
             {service.related.map((item) => (
               <Link key={item.slug} to={'/services/' + item.slug} className="care-card service-detail__related">
                 <ContentImage key={item.image_url ?? item.name} name={item.name} src={item.image_url} alt={item.name} className="content-photo--card" />
