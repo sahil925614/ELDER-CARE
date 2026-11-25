@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePageSeo } from "@/features/seo/PageSeoContext";
 import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link, useSearchParams, useParams } from "react-router-dom";
 import {
@@ -77,19 +78,10 @@ export function PlanDetailsPage({
     return () =>
       window.removeEventListener("elder-care-currency-changed", sync);
   }, []);
-  useEffect(() => {
-    if (!catalogPlan) return;
-    const previous = document.title;
-    document.title = catalogPlan.name + " | Care Plans | Elder Care";
-    const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    const previousDescription = meta?.content;
-    const text = catalogPlan.best_for || catalogPlan.short_description;
-    if (meta && text) meta.content = text;
-    return () => {
-      document.title = previous;
-      if (meta && previousDescription !== undefined) meta.content = previousDescription;
-    };
-  }, [catalogPlan]);
+  usePageSeo(catalogPlan ? {
+    title: catalogPlan.name + " | Care Plans | Elder Care",
+    description: catalogPlan.best_for || catalogPlan.short_description || undefined,
+  } : null);
   if (loading || error || !catalogPlan)
     return (
       <section className="pb-16 pt-40">

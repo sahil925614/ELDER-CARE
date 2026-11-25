@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -6,6 +5,7 @@ import {
   MessageCircle, Pill, RotateCw, ShieldCheck, Stethoscope, UserRoundCheck,
 } from 'lucide-react';
 import { useServiceDetail, useServicesPageContent } from '@/features/cms/servicesPage';
+import { usePageSeo } from '@/features/seo/PageSeoContext';
 import bannerImage from '@/assets/service.jpg';
 import { PageHero } from './components/PageSections';
 import { ContentImage } from './components/ContentImage';
@@ -45,18 +45,10 @@ export function ServiceDetailPage() {
   // Banner: the service's own image, then the Services page banner from settings, then the built-in picture.
   const servicesPage = useServicesPageContent(true);
 
-  useEffect(() => {
-    if (!service) return;
-    const previous = document.title;
-    document.title = (service.seo.title || service.name + ' | Elder Care');
-    const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    const previousDescription = meta?.content;
-    if (meta && (service.seo.description || service.text)) meta.content = service.seo.description || service.text;
-    return () => {
-      document.title = previous;
-      if (meta && previousDescription !== undefined) meta.content = previousDescription;
-    };
-  }, [service]);
+  usePageSeo(service ? {
+    title: service.seo.title || service.name + ' | Elder Care',
+    description: service.seo.description || service.text || undefined,
+  } : null);
 
   if (status !== 'ready' || !service) {
     return (

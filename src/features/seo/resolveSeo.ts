@@ -3,7 +3,12 @@ import { pageSeo, type SeoSettings } from './settings'
 export function resolveSeo(pathname: string, search = '', override: Partial<SeoSettings> = {}) {
   const path = pathname.replace(/\/+$/, '') || '/'
   const isCustomer = path === '/customer' || path.startsWith('/customer/')
-  const known = pageSeo[path] || (path.startsWith('/blog/') && path.split('/').length === 3 ? pageSeo['/blog'] : undefined)
+  // Single service / plan pages (/services/<slug>, /plans/<slug>) are real pages:
+  // they start from the Services / Plans settings and the page sets its own title.
+  const detailBase = /^\/(services|plans)\/[^/]+$/.exec(path)?.[1]
+  const known = pageSeo[path]
+    || (path.startsWith('/blog/') && path.split('/').length === 3 ? pageSeo['/blog'] : undefined)
+    || (detailBase ? pageSeo['/' + detailBase] : undefined)
   let settings: SeoSettings = known || {
     title: isCustomer ? 'Customer Account | Elder Care' : 'Page Not Found | Elder Care',
     description: isCustomer ? 'Your private Elder Care customer workspace.' : 'The requested page could not be found.',
