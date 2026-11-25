@@ -1,5 +1,9 @@
 /* Make the phone box as wide as the other fields and keep the country list above everything. */
 .phone-input .iti { display: block; width: 100%; }
+/* The library forces margin: 0 on the input, so the gap under the label
+   (8px on the other fields) is added on the box around it instead.
+   Without it the focus outline touches the "Phone" label. */
+.phone-input .iti { margin-top: 0.5rem; }
 .iti--container { z-index: 2000; }
 .phone-input .iti__selected-dial-code { color: inherit; }
 
