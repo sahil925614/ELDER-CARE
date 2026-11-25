@@ -81,12 +81,24 @@
   color: var(--primary-color, #176b67);
 }
 
+/* Plan cards keep a fixed width and are centred, so 1, 2, 3 or 4 plans all
+   look balanced (a single plan no longer stretches across the section).
+   Phones: full width, one per row. */
 .service-detail__plan-list {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 16px;
   margin: 34px auto 0;
   max-width: 1000px;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+.service-detail__plan-list > .service-detail__plan {
+  flex: 1 1 100%;
+}
+@media (min-width: 640px) {
+  .service-detail__plan-list > .service-detail__plan {
+    flex: 0 1 236px;
+  }
 }
 .service-detail__plan {
   display: flex;
