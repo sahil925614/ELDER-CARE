@@ -1,5 +1,5 @@
-import { useState } from "react";
-import IntlTelInput from "intl-tel-input/reactWithUtils";
+import { useEffect, useRef, useState } from "react";
+import IntlTelInput, { type IntlTelInputRef } from "intl-tel-input/reactWithUtils";
 import "intl-tel-input/build/css/intlTelInput.css";
 import "./PhoneInput.css";
 
@@ -25,10 +25,22 @@ export function PhoneInput({
 }) {
   const [number, setNumber] = useState((defaultValue ?? "").trim());
   const [valid, setValid] = useState(true);
+  const phoneRef = useRef<IntlTelInputRef>(null);
+
+  // Block form submission for a wrong number (not only show the message).
+  // An empty field is handled by the native `required` check.
+  useEffect(() => {
+    phoneRef.current
+      ?.getInput()
+      ?.setCustomValidity(
+        !valid && number.trim() !== "" ? "Enter a valid phone number for the chosen country." : "",
+      );
+  }, [valid, number]);
 
   return (
     <div className="phone-input">
       <IntlTelInput
+        ref={phoneRef}
         initialValue={(defaultValue ?? "").trim()}
         onChangeNumber={setNumber}
         onChangeValidity={setValid}
@@ -40,7 +52,8 @@ export function PhoneInput({
           strictMode: false,
           containerClass: "phone-input-box",
         }}
-        inputProps={{ id, required, className, autoComplete: "tel", "aria-invalid": !valid }}
+        // Only red when a wrong number was typed, not while the box is still empty.
+        inputProps={{ id, required, className, autoComplete: "tel", "aria-invalid": !valid && number.trim() !== "" }}
       />
       <input type="hidden" name={name} value={number} />
       {!valid && number.trim() !== "" && (
