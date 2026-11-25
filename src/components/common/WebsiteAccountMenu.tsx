@@ -68,7 +68,7 @@ export function WebsiteAccountMenu({ customer, mobile = false, onNavigate }: { c
         }}
         className={'flex items-center gap-2 rounded-lg text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ' + (mobile ? 'w-full px-4 py-3' : 'px-2 py-1.5')}>
         <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-50 text-[11px] font-semibold text-primary" aria-hidden="true">{initials}</span>
-        <span className={'min-w-0 truncate text-left ' + (mobile ? 'flex-1' : 'max-w-20')}>{mobile || !customer ? name : name.split(/\s+/)[0]}</span>
+        <span className={'min-w-0 truncate text-left ' + (mobile ? 'flex-1' : 'max-w-20 sr-only min-[1440px]:not-sr-only')}>{mobile || !customer ? name : name.split(/\s+/)[0]}</span>
         <ChevronDown size={15} aria-hidden="true" className={'shrink-0 transition-transform motion-reduce:transition-none ' + (open ? 'rotate-180' : '')} />
       </button>
       {open && (

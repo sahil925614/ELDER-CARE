@@ -149,8 +149,8 @@ export function AccountForm({
 
           {register && (
             <label className="extra-label">
-              Phone number (optional)
-              <PhoneInput name="phone" className="extra-field" />
+              Phone number
+              <PhoneInput name="phone" required className="extra-field" />
             </label>
           )}
 

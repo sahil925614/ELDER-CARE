@@ -31,7 +31,7 @@ export function WebsiteEnquiryForm(props: Props) {
           <label className="block min-w-0 text-sm font-semibold text-brand-900">{content.email_label}<input name="email" type="email" autoComplete="email" required maxLength={254} className={inputClass} placeholder={content.email_placeholder} {...attributes('email')} />{error('email')}</label>
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
-          <label className="block min-w-0 text-sm font-semibold text-brand-900">{content.phone_label} <span className="font-normal text-slate-500">{content.optional_label}</span><PhoneInput name="phone" className={inputClass} />{error('phone')}</label>
+          <label className="block min-w-0 text-sm font-semibold text-brand-900">{content.phone_label}<PhoneInput name="phone" required className={inputClass} />{error('phone')}</label>
           <label className="block min-w-0 text-sm font-semibold text-brand-900">{content.city_label} {!details && <span className="font-normal text-slate-500">{content.optional_label}</span>}<input name={details ? 'location' : 'city'} autoComplete="address-level2" required={Boolean(details)} maxLength={100} className={inputClass} placeholder={content.city_placeholder} {...attributes('city')} />{error('city')}</label>
         </div>
         {details && <label className="block text-sm font-semibold text-brand-900">{details.care_for_label}<select name="careFor" required defaultValue="" className={inputClass} {...attributes('care_for')}>

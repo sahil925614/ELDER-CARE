@@ -231,7 +231,7 @@ export function ProfilePage() {
 
               <label className="portal-label">
                 Phone
-                <PhoneInput name="phone" defaultValue={profile.phone} className="portal-input" />
+                <PhoneInput name="phone" defaultValue={profile.phone} required className="portal-input" />
               </label>
 
               <label className="portal-label">
