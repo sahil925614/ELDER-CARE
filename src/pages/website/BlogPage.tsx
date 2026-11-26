@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SiteLoader } from "@/components/common/SiteLoader";
 import { Link, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, RefreshCw, Search, X } from 'lucide-react';
@@ -9,11 +9,17 @@ import { ExtraHero, EditorialPhoto } from './components/WebsiteExtras';
 import { PageCta } from './components/PageSections';
 import './BlogPage.css';
 
-type BlogContext = { blogPage: BlogPageContent | null; blogJournal: BlogJournal };
+type BlogContext = { blogPage: BlogPageContent | null; blogJournal: BlogJournal; blogQuery: string; setBlogQuery: (value: string) => void };
 const articleUrl = (article: BlogCard) => '/blog/' + encodeURIComponent(article.slug);
 
 export function BlogPage() {
-  const { blogPage, blogJournal: journal } = useOutletContext<BlogContext>();
+  const { blogPage, blogJournal: journal, blogQuery, setBlogQuery } = useOutletContext<BlogContext>();
+  // What the visitor types; sent to the search a moment after they stop typing.
+  const [query, setQuery] = useState(blogQuery);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setBlogQuery(query), 350);
+    return () => window.clearTimeout(timer);
+  }, [query, setBlogQuery]);
   const content = blogPage?.sections ?? defaultBlogSections;
   const [params, setParams] = useSearchParams();
   const { slug } = useParams();
@@ -24,12 +30,19 @@ export function BlogPage() {
     if (post && (!slug || slug !== post.slug)) navigate(articleUrl(post), { replace: true });
   }, [post, slug, navigate]);
 
+  // Category / page filters stay in the URL (shareable) but keep the scroll position.
   function filter(key: string, value: string) {
     const next = new URLSearchParams(params);
     next.delete('article');
     next.delete('page');
+    next.delete('q');
     if (value) next.set(key, value); else next.delete(key);
-    setParams(next, { replace: key === 'q' });
+    setParams(next, { state: { keepScroll: true } });
+  }
+  function clearAll() {
+    setQuery('');
+    setBlogQuery('');
+    setParams({}, { state: { keepScroll: true } });
   }
   const categoryName = (article: BlogCard) => article.category?.name || content.sidebar.uncategorized_label;
   const photo = (article: BlogCard) => ({
@@ -52,7 +65,7 @@ export function BlogPage() {
         </div>
       </div>}
       <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_310px] lg:gap-14">
-        <div className={isArticle ? 'min-w-0' : 'order-2 min-w-0 lg:order-1'} aria-busy={journal.loading}>
+        <div className={(isArticle ? 'min-w-0' : 'order-2 min-w-0 lg:order-1') + (journal.refreshing ? ' opacity-60 transition-opacity' : ' transition-opacity')} aria-busy={journal.loading || journal.refreshing}>
           {journal.loading ? <SiteLoader label={isArticle ? content.article.loading_text : content.journal.loading_text} className="border-y border-brand-100" />
             : journal.error ? <div className="border-y border-brand-100 py-14">
               {journal.missing && <h1 className="text-3xl font-semibold text-brand-900">{content.article.missing_title}</h1>}
@@ -97,12 +110,12 @@ export function BlogPage() {
               <Search size={29} strokeWidth={1.4} className="mx-auto text-brand-300" aria-hidden="true" />
               <h3 className="mt-5 text-xl font-semibold text-brand-900">{content.journal.empty_title}</h3>
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">{content.journal.empty_text}</p>
-              <button type="button" onClick={() => setParams({})} className="button-outline mt-6">{content.journal.clear_label}</button>
+              <button type="button" onClick={clearAll} className="button-outline mt-6">{content.journal.clear_label}</button>
             </div>}
           {!isArticle && !journal.error && pagination && pagination.pages > 1 && <nav aria-label="Journal pagination" className="mt-10 flex items-center justify-between gap-4 border-t border-brand-100 pt-6">
-            <button type="button" title={content.journal.previous_label} aria-label={content.journal.previous_label} disabled={journal.loading || pagination.page <= 1} className="button-outline size-11 shrink-0 !p-0 disabled:opacity-40" onClick={() => setParams(current => { current.set('page', String(pagination.page - 1)); return current; })}><ChevronLeft size={18} /></button>
+            <button type="button" title={content.journal.previous_label} aria-label={content.journal.previous_label} disabled={journal.loading || pagination.page <= 1} className="button-outline size-11 shrink-0 !p-0 disabled:opacity-40" onClick={() => setParams(current => { current.set('page', String(pagination.page - 1)); return current; }, { state: { keepScroll: true } })}><ChevronLeft size={18} /></button>
             <span className="text-sm text-slate-500">{content.journal.page_label} {pagination.page} / {pagination.pages}</span>
-            <button type="button" title={content.journal.next_label} aria-label={content.journal.next_label} disabled={journal.loading || pagination.page >= pagination.pages} className="button-outline size-11 shrink-0 !p-0 disabled:opacity-40" onClick={() => setParams(current => { current.set('page', String(pagination.page + 1)); return current; })}><ChevronRight size={18} /></button>
+            <button type="button" title={content.journal.next_label} aria-label={content.journal.next_label} disabled={journal.loading || pagination.page >= pagination.pages} className="button-outline size-11 shrink-0 !p-0 disabled:opacity-40" onClick={() => setParams(current => { current.set('page', String(pagination.page + 1)); return current; }, { state: { keepScroll: true } })}><ChevronRight size={18} /></button>
           </nav>}
         </div>
         <aside className={'min-w-0 self-start lg:sticky lg:top-28 ' + (isArticle ? '' : 'order-1 lg:order-2')}>
@@ -111,8 +124,8 @@ export function BlogPage() {
               <h2 className="text-lg font-semibold text-brand-900">{content.sidebar.search_label}</h2><div className="mt-4 h-px bg-brand-100" />
               <div className="relative mt-4"><Search size={18} className="pointer-events-none absolute left-0 top-3.5 text-slate-400" aria-hidden="true" />
                 <label className="sr-only" htmlFor="journal-search">{content.sidebar.search_label}</label>
-                <input id="journal-search" type="search" maxLength={200} value={params.get('q') || ''} onChange={event => filter('q', event.target.value)} placeholder={content.sidebar.search_placeholder} className="w-full border-0 border-b border-brand-100 bg-transparent py-3 pl-7 pr-8 text-sm outline-none focus:border-primary" />
-                {params.get('q') && <button type="button" onClick={() => filter('q', '')} title={content.sidebar.clear_label} aria-label={content.sidebar.clear_label} className="absolute right-0 top-3 text-slate-400"><X size={18} /></button>}
+                <input id="journal-search" type="search" maxLength={200} value={query} onChange={event => setQuery(event.target.value)} placeholder={content.sidebar.search_placeholder} className="w-full border-0 border-b border-brand-100 bg-transparent py-3 pl-7 pr-8 text-sm outline-none focus:border-primary" />
+                {query && <button type="button" onClick={() => { setQuery(''); setBlogQuery(''); }} title={content.sidebar.clear_label} aria-label={content.sidebar.clear_label} className="absolute right-0 top-3 text-slate-400"><X size={18} /></button>}
               </div>
             </div>}
             {isArticle && <RecentPosts journal={journal} content={content} />}

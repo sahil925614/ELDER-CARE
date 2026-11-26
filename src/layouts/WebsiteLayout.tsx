@@ -28,7 +28,21 @@ export function WebsiteLayout() {
   const isBlog = pathname === '/blog' || pathname.startsWith('/blog/');
   const blogArticle = isBlog ? slug || new URLSearchParams(search).get('article') : null;
   const blogPage = useBlogPageContent(isBlog);
-  const blogJournal = useBlogJournal(isBlog, blogArticle, search);
+  // Blog search text is kept here (not in the URL), so typing does not change
+  // the address or scroll the page. It is cleared when leaving the blog.
+  const [blogQuery, setBlogQuery] = useState(() => new URLSearchParams(search).get('q') ?? '');
+  const [blogQueryPath, setBlogQueryPath] = useState(pathname);
+  if (blogQueryPath !== pathname) {
+    setBlogQueryPath(pathname);
+    if (!isBlog && blogQuery) setBlogQuery('');
+  }
+  const journalSearch = (() => {
+    const next = new URLSearchParams(search);
+    next.delete('q');
+    if (blogQuery.trim()) next.set('q', blogQuery.trim());
+    return next.toString() ? '?' + next : '';
+  })();
+  const blogJournal = useBlogJournal(isBlog, blogArticle, journalSearch);
   useContentMotion(pathname);
   const isHome = pathname === "/";
   const homePage = useHomePageContent(isHome);
@@ -69,7 +83,7 @@ export function WebsiteLayout() {
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
-      <WebsiteSeo override={{ ...(isBlog ? blogSeo(blogPage, blogJournal, blogArticle, search) : homePage?.seo ?? aboutPage?.seo ?? howItWorksPage?.seo ?? testimonialsPage?.seo ?? servicesPage?.seo ?? addonsPage?.seo ?? plansPage?.seo ?? doctorsPage?.seo ?? faqsPage?.seo ?? privacyPage?.seo ?? termsPage?.seo ?? enquiryPage?.seo ?? contactPage?.seo), ...pageSeoOverride }} />
+      <WebsiteSeo override={{ ...(isBlog ? blogSeo(blogPage, blogJournal, blogArticle, journalSearch) : homePage?.seo ?? aboutPage?.seo ?? howItWorksPage?.seo ?? testimonialsPage?.seo ?? servicesPage?.seo ?? addonsPage?.seo ?? plansPage?.seo ?? doctorsPage?.seo ?? faqsPage?.seo ?? privacyPage?.seo ?? termsPage?.seo ?? enquiryPage?.seo ?? contactPage?.seo), ...pageSeoOverride }} />
       <ScrollToTop />
       <WebsiteSmoothScroll />
       <Header overlay={isHome || hasPhotoBanner} />
@@ -84,7 +98,7 @@ export function WebsiteLayout() {
               : "page-container content-page flex-1 pb-12 pt-32") + (pathname === '/about' ? ' about-page' : pathname === '/how-it-works' ? ' how-it-works-page' : pathname === '/testimonials' ? ' testimonials-page' : pathname === '/services' ? ' services-page' : pathname === '/add-ons' ? ' addons-page' : pathname === '/plans' ? ' plans-page' : pathname === '/doctors' ? ' doctors-page' : '')
         }
       >
-        <Outlet context={{ homePage, aboutPage, howItWorksPage, testimonialsPage, servicesPage, addonsPage, plansPage, doctorsPage, blogPage, blogJournal, contactPage, enquiryPage, faqsPage, privacyPage, termsPage }} />
+        <Outlet context={{ homePage, aboutPage, howItWorksPage, testimonialsPage, servicesPage, addonsPage, plansPage, doctorsPage, blogPage, blogJournal, blogQuery, setBlogQuery, contactPage, enquiryPage, faqsPage, privacyPage, termsPage }} />
       </main>
       <Footer />
       <FloatingActions key={pathname} />
