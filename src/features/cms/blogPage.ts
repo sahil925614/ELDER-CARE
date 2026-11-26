@@ -106,7 +106,14 @@ export function useBlogJournal(enabled: boolean, article: string | null, search:
     window.addEventListener('focus', refresh);
     return () => { active = false; window.clearTimeout(timer); window.removeEventListener('focus', refresh); };
   }, [enabled, endpoint, article, revision]);
-  return { ...(enabled && result.endpoint === endpoint ? result : { data: !article && !result.data?.post ? result.data : null, loading: true, error: false, missing: false }), retry };
+  const stale = !(enabled && result.endpoint === endpoint);
+  const previousList = !article && !result.data?.post ? result.data : null;
+  return {
+    ...(stale ? { data: previousList, loading: !previousList, error: false, missing: false } : result),
+    // True while a new search/filter is loading but the previous results are still shown.
+    refreshing: stale && Boolean(previousList),
+    retry,
+  };
 }
 export type BlogJournal = ReturnType<typeof useBlogJournal>;
 
