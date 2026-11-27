@@ -87,7 +87,7 @@ export function PlansPage() {
 
           {/* DURATION SELECTOR */}
 
-          <div>
+          <div className="lg:flex lg:max-w-sm lg:flex-col lg:items-end lg:justify-self-end lg:text-right">
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
               {sections.introduction.duration_label}
             </p>

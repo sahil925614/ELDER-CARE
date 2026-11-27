@@ -5,16 +5,12 @@ import {
   BellRing,
   BriefcaseMedical,
   ClipboardList,
-  Crown,
   FlaskConical,
-  Flower2,
   Headset,
-  HeartHandshake,
   HeartPulse,
   House,
   Laptop,
   PhoneCall,
-  Plus,
   ShieldCheck,
   Star,
   Stethoscope,
@@ -43,15 +39,6 @@ function benefitIcon(text: string): LucideIcon {
   return ShieldCheck;
 }
 
-function planIcon(name: string): LucideIcon {
-  const value = name.toLowerCase();
-  if (value.includes("assurance")) return ShieldCheck;
-  if (value.includes("plus")) return Plus;
-  if (value.includes("prime")) return Flower2;
-  if (value.includes("elite")) return Crown;
-  return HeartHandshake;
-}
-
 /** "Care Prime" is shown as a light "Care" followed by the bold coloured "PRIME". */
 function splitName(name: string) {
   const [first, ...rest] = name.trim().split(/\s+/);
@@ -69,7 +56,6 @@ export function MembershipPlanCard({
   popularLabel: string;
   chooseLabel: string;
 }) {
-  const Icon = planIcon(plan.name);
   const { lead, tail } = splitName(plan.name);
   const items = plan.features.length
     ? plan.features.map((feature) => feature.title)
@@ -96,7 +82,6 @@ export function MembershipPlanCard({
       )}
 
       <header className="membership-head">
-        <Icon size={34} strokeWidth={1.5} aria-hidden="true" />
         <h3>
           {lead && <span className="membership-lead">{lead} </span>}
           <span className="membership-tail">{tail}</span>

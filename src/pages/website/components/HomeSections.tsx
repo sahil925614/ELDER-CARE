@@ -617,7 +617,7 @@ export function HomeSections() {
 
             <div className="flex flex-col gap-5 lg:items-end">
               {planDurations.length > 0 && (
-                <div className="lg:max-w-sm">
+                <div className="lg:flex lg:max-w-sm lg:flex-col lg:items-end lg:text-right">
                   <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
                     {plansDurationText.label}
                   </p>
