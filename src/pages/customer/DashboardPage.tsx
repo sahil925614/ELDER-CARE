@@ -466,11 +466,11 @@ export function DashboardPage() {
 
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-brand-900">
-          Request support
+          Add extra care
         </p>
 
         <p className="mt-1 text-xs leading-5 text-slate-400">
-          Explore additional care services
+          Explore add-on services for your loved one
         </p>
       </div>
 
