@@ -79,7 +79,7 @@ export function WebsiteLayout() {
   ].includes(pathname) || isBlog || pathname.startsWith('/plans/') || pathname.startsWith('/services/');
   return (
     <PageSeoContext.Provider value={setPageSeoOverride}>
-    <div className="relative flex min-h-screen flex-col">
+    <div className="website-layout relative flex min-h-screen flex-col">
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>

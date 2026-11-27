@@ -46,6 +46,13 @@
   }
 }
 
+/* Improve reading size across public website pages while preserving headings. */
+@layer utilities {
+  .website-layout main :where(p, li, a, button, label, input, select, textarea, summary) {
+    font-size: max(1rem, 1em);
+  }
+}
+
 @layer components {
   .skip-link {
     @apply sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-white focus:p-4;
