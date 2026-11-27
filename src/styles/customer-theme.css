@@ -98,3 +98,14 @@
   )::backdrop {
   background: #02080bb3;
 }
+/* Checkbox in dark mode: the generic .bg-white override above made a ticked
+   box look the same as an empty one. Empty = outlined, ticked = filled teal. */
+.customer-dark .portal-checkbox {
+  border-color: #3a5560;
+  background-color: transparent;
+}
+.customer-dark .peer:checked ~ .portal-checkbox {
+  border-color: #2bb3a6;
+  background-color: #2bb3a6;
+  color: #0b1a20;
+}

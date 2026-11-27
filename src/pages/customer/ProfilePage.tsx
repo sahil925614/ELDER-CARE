@@ -290,7 +290,7 @@ export function ProfilePage() {
                 className="peer sr-only"
               />
               <span
-                className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-slate-300 bg-white text-white transition-colors peer-checked:border-primary peer-checked:bg-primary"
+                className="portal-checkbox mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-slate-300 bg-white text-transparent transition-colors peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary"
                 aria-hidden="true"
               >
                 <Check size={13} strokeWidth={2.2} />
