@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { SiteLoader } from "@/components/common/SiteLoader";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import {
   ArrowRight,
@@ -81,6 +81,17 @@ export function PaymentsPage() {
   useEffect(() => {
     void loadPayments();
   }, []);
+
+  // Opened from "Complete payment" on My Subscriptions: show that invoice
+  // straight away so the customer can press Pay now.
+  const [params, setParams] = useSearchParams();
+  const invoiceParam = params.get("invoice");
+  useEffect(() => {
+    if (!invoiceParam || !invoices.length) return;
+    const match = invoices.find((invoice) => String(invoice.id) === invoiceParam);
+    if (match) setSelectedInvoice(match);
+    setParams((current) => { current.delete("invoice"); return current; }, { replace: true });
+  }, [invoiceParam, invoices, setParams]);
 
   const records = tab === "Invoices" ? invoices : payments;
   const statuses = tab === "Invoices"
@@ -487,6 +498,8 @@ function InvoiceModal({
 }) {
   const [paying, setPaying] = useState(false);
   const [message, setMessage] = useState("");
+  // Unpaid invoice: Pay now is the main action.
+  const canPay = !["Paid", "Cancelled", "Refunded"].includes(invoice.payment_status);
 
   async function payInvoice() {
     setPaying(true);
@@ -556,18 +569,18 @@ function InvoiceModal({
         href={customerInvoicePdfUrl(invoice.id)}
         target="_blank"
         rel="noreferrer"
-        className="button-primary"
+        className={canPay ? "button-outline" : "button-primary"}
       >
         <Download size={16} aria-hidden="true" />
         View invoice PDF
       </a>
 
-      {!["Paid", "Cancelled", "Refunded"].includes(invoice.payment_status) && (
+      {canPay && (
         <button
           type="button"
           disabled={paying}
           onClick={payInvoice}
-          className="button-outline disabled:opacity-50"
+          className="button-primary disabled:opacity-50"
         >
           {paying ? <Loader2 className="animate-spin" size={16} /> : <CreditCard size={16} />}
           Pay now

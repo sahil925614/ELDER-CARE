@@ -182,6 +182,12 @@ export function SubscriptionsPage() {
                     <Badge>{latestInvoice.status}</Badge>
                     <Badge>{latestInvoice.payment_status}</Badge>
                   </div>
+                  {!["Paid", "Cancelled", "Refunded"].includes(latestInvoice.payment_status) && (
+                    <Link to={"/customer/payments?invoice=" + latestInvoice.id} className="button-primary w-full justify-center">
+                      <CreditCard size={16} aria-hidden="true" />
+                      Pay {latestInvoice.formatted_total_amount}
+                    </Link>
+                  )}
                 </div>
               ) : (
                 <p className="text-sm leading-6 text-slate-500">
@@ -259,6 +265,10 @@ function SubscriptionCard({
   // Until the plan is paid, hide anything that makes it look already bought
   // (usage counts, renew, pause, auto renew).
   const isPaid = subscription.payment_status === "Paid";
+  // Invoice the customer still has to pay (e.g. they closed the payment window).
+  const unpaidInvoice = subscription.invoices.find(
+    (invoice) => !["Paid", "Cancelled", "Refunded"].includes(invoice.payment_status),
+  );
 
   async function runAction(action: "pause" | "resume" | "cancel") {
     if (actionPending.current || busy) return;
@@ -466,6 +476,15 @@ function SubscriptionCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {!isPaid && unpaidInvoice && !["cancelled", "expired"].includes(statusSlug) && (
+            <Link
+              to={"/customer/payments?invoice=" + unpaidInvoice.id}
+              className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-primary bg-primary px-4 text-xs font-semibold text-white transition-colors hover:bg-brand-900"
+            >
+              <CreditCard size={15} aria-hidden="true" />
+              Complete payment
+            </Link>
+          )}
           {isPaid && statusSlug === "active" && (
             <ActionPill disabled={!!busy} loading={busy === "pause"}  onClick={() => runAction("pause")}>
               Pause
@@ -668,10 +687,12 @@ function VisitsAndBenefits({ subscription, statusSlug, isPaid }: { subscription:
         <div className={visits.length > 0 ? "mt-8" : ""}>
           <h3 className="text-sm font-semibold text-brand-900">Your plan benefits</h3>
           <p className="mt-1 text-xs leading-5 text-slate-500">Everything your plan includes. Our care team arranges these for you.</p>
-          <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
+          <ul className="plan-benefits mt-4 overflow-hidden rounded-2xl border border-brand-100">
             {benefits.map((text) => (
-              <li key={text} className="flex items-start gap-2.5 rounded-2xl border border-brand-100 px-4 py-3 text-sm leading-6 text-slate-600">
-                <Check size={16} className="mt-1 shrink-0 text-primary" aria-hidden="true" />
+              <li key={text} className="flex items-center gap-3 px-4 py-3.5 text-sm leading-5 text-slate-600">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-50 text-primary">
+                  <Check size={14} strokeWidth={2.4} aria-hidden="true" />
+                </span>
                 <span>{text}</span>
               </li>
             ))}

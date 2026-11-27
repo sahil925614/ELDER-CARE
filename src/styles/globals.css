@@ -1133,3 +1133,14 @@
   appearance: none;
   display: none;
 }
+
+/* My Subscriptions → "Your plan benefits": one panel, one row per benefit. */
+.plan-benefits > li {
+  border-top: 1px solid var(--theme-light, #d5f0ec);
+}
+.plan-benefits > li:first-child {
+  border-top: 0;
+}
+.customer-dark .plan-benefits > li {
+  border-color: rgb(255 255 255 / 8%);
+}
