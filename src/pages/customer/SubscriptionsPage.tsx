@@ -2,7 +2,6 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { SiteLoader } from "@/components/common/SiteLoader";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { SuggestedPlans } from "./components/SuggestedPlans";
 
 import {
   ArrowUpRight,
@@ -159,9 +158,6 @@ export function SubscriptionsPage() {
           />
         </div>
       )}
-
-      {/* No active plan at all: show the plans so the customer can pick one. */}
-      {!loading && !error && tab === "Active" && !active.length && <SuggestedPlans />}
 
       {!loading && selected && (
         <section className="grid gap-6 xl:grid-cols-[1.45fr_0.75fr]">
